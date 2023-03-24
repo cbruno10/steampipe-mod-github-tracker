@@ -30,6 +30,11 @@ dashboard "github_open_pull_request_report" {
     }
 
     card {
+      sql   = query.github_pull_request_doc_external_count.sql
+      width = 2
+    }
+
+    card {
       sql   = query.github_pull_request_plugin_external_count.sql
       width = 2
     }
@@ -43,7 +48,7 @@ dashboard "github_open_pull_request_report" {
       sql = query.github_pull_request_external_detail.sql
 
       column "html_url" {
-        display = "None"
+        display = "none"
       }
 
       column "Pull Request" {
@@ -83,7 +88,7 @@ query "github_pull_request_tool_external_count" {
       github_search_pull_request
     where
       query='org:turbot is:open'
-      and (repository_full_name ~ 'turbot/steampipe-(docs|fdw|plugin-sdk)' or repository_full_name = 'turbot/steampipe') -- Only include steampipe-plugin-sdk, not other steampipe-plugin-* repos
+      and (repository_full_name ~ 'turbot/steampipe-(fdw|plugin-sdk)' or repository_full_name = 'turbot/steampipe') -- Only include steampipe-plugin-sdk, not other steampipe-plugin-* repos
       and "user" ->> 'login' not in (
         select
           jsonb_array_elements_text(g.member_logins) as member_login
@@ -95,6 +100,25 @@ query "github_pull_request_tool_external_count" {
     EOQ
 }
 
+query "github_pull_request_doc_external_count" {
+  sql = <<-EOQ
+    select
+      count(*) as "Docs Pull Requests"
+    from
+      github_search_pull_request
+    where
+      query='org:turbot is:open'
+      and repository_full_name = 'turbot/steampipe-docs'
+      and "user" ->> 'login' not in (
+        select
+          jsonb_array_elements_text(g.member_logins) as member_login
+        from
+          github_my_organization g
+        where
+          g.login = 'turbot'
+       );
+    EOQ
+}
 
 query "github_pull_request_plugin_external_count" {
   sql = <<-EOQ

@@ -31,6 +31,11 @@ dashboard "github_open_issue_report" {
     }
 
     card {
+      sql   = query.github_issue_doc_external_count.sql
+      width = 2
+    }
+
+    card {
       sql   = query.github_issue_plugin_external_count.sql
       width = 2
     }
@@ -44,7 +49,7 @@ dashboard "github_open_issue_report" {
       sql = query.github_issue_external_detail.sql
 
       column "html_url" {
-        display = "None"
+        display = "none"
       }
 
       column "Issue" {
@@ -105,7 +110,27 @@ query "github_issue_tool_external_count" {
       github_search_issue
     where
       query='org:turbot is:open'
-      and (repository_full_name ~ 'turbot/steampipe-(docs|fdw|plugin-sdk)' or repository_full_name = 'turbot/steampipe') -- Only include steampipe-plugin-sdk, not other steampipe-plugin-* repos
+      and (repository_full_name ~ 'turbot/steampipe-(fdw|plugin-sdk)' or repository_full_name = 'turbot/steampipe') -- Only include steampipe-plugin-sdk, not other steampipe-plugin-* repos
+      and "user" ->> 'login' not in (
+        select
+          jsonb_array_elements_text(g.member_logins) as member_login
+        from
+          github_my_organization g
+        where
+          g.login = 'turbot'
+       );
+    EOQ
+}
+
+query "github_issue_doc_external_count" {
+  sql = <<-EOQ
+    select
+      count(*) as "Docs Issues"
+    from
+      github_search_issue
+    where
+      query='org:turbot is:open'
+      and repository_full_name = 'turbot/steampipe-docs'
       and "user" ->> 'login' not in (
         select
           jsonb_array_elements_text(g.member_logins) as member_login

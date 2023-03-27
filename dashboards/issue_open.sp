@@ -48,9 +48,11 @@ dashboard "github_open_issue_report" {
     table {
       sql = query.github_issue_external_detail.sql
 
+      /*
       column "html_url" {
         display = "none"
       }
+      */
 
       column "Issue" {
         href = "{{.'html_url'}}"

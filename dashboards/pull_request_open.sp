@@ -47,9 +47,11 @@ dashboard "github_open_pull_request_report" {
     table {
       sql = query.github_pull_request_external_detail.sql
 
+      /*
       column "html_url" {
         display = "none"
       }
+      */
 
       column "Pull Request" {
         href = "{{.'html_url'}}"

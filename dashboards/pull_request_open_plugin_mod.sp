@@ -1,12 +1,6 @@
-locals {
-  github_pull_request_external_common_tags = {
-    service = "GitHub/PullRequest"
-  }
-}
+dashboard "github_open_plugin_mod_pull_request_report" {
 
-dashboard "github_open_pull_request_report" {
-
-  title = "GitHub Open Pull Requests Report"
+  title = "GitHub Open Plugin and Mods Pull Requests"
 
   tags = merge(local.github_pull_request_external_common_tags, {
     type = "Report"
@@ -16,21 +10,12 @@ dashboard "github_open_pull_request_report" {
 
     # Analysis
     card {
-      sql   = query.github_pull_request_open_total_days_count.sql
-      width = 2
-    }
-    card {
-      sql   = query.github_pull_request_external_count.sql
+      sql   = query.github_pull_request_aws_plugin_external_count.sql
       width = 2
     }
 
     card {
-      sql   = query.github_pull_request_tool_external_count.sql
-      width = 2
-    }
-
-    card {
-      sql   = query.github_pull_request_doc_external_count.sql
+      sql   = query.github_pull_request_aws_compliance_mod_external_count.sql
       width = 2
     }
 
@@ -44,14 +29,17 @@ dashboard "github_open_pull_request_report" {
       width = 2
     }
 
-    table {
-      sql = query.github_pull_request_external_detail.sql
+    card {
+      sql   = query.github_pull_request_open_plugin_mod_total_days_count.sql
+      width = 2
+    }
 
-      /*
+    table {
+      sql = query.github_pull_request_open_plugin_mod_table.sql
+
       column "html_url" {
         display = "none"
       }
-      */
 
       column "Pull Request" {
         href = "{{.'html_url'}}"
@@ -62,15 +50,23 @@ dashboard "github_open_pull_request_report" {
 
 }
 
-query "github_pull_request_external_count" {
+query "github_pull_request_aws_plugin_external_count" {
   sql = <<-EOQ
     select
-      count(*) as "Open Pull Requests"
+      'AWS Plugin' as label,
+      case
+        when sum(now()::date - created_at::date) is null then '0 days'
+        else sum(now()::date - created_at::date) || ' days'
+      end as value,
+      case
+        when sum(now()::date - created_at::date) > 30 then 'alert'
+        else 'ok'
+      end as type
     from
       github_search_pull_request
     where
-      query='org:turbot is:open'
-      and (repository_full_name ~ 'turbot/steampipe-(docs|fdw|mod|plugin)' or repository_full_name = 'turbot/steampipe') -- SDK repo is called steampipe-plugin-sdk
+      query = 'org:turbot is:open'
+      and repository_full_name = 'turbot/steampipe-plugin-aws'
       and "user" ->> 'login' not in (
         select
           jsonb_array_elements_text(g.member_logins) as member_login
@@ -82,15 +78,23 @@ query "github_pull_request_external_count" {
     EOQ
 }
 
-query "github_pull_request_tool_external_count" {
+query "github_pull_request_aws_compliance_mod_external_count" {
   sql = <<-EOQ
     select
-      count(*) as "Steampipe Pull Requests"
+      'AWS Compliance' as label,
+      case
+        when sum(now()::date - created_at::date) is null then '0 days'
+        else sum(now()::date - created_at::date) || ' days'
+      end as value,
+      case
+        when sum(now()::date - created_at::date) > 30 then 'alert'
+        else 'ok'
+      end as type
     from
       github_search_pull_request
     where
-      query='org:turbot is:open'
-      and (repository_full_name ~ 'turbot/steampipe-(fdw|plugin-sdk)' or repository_full_name = 'turbot/steampipe') -- Only include steampipe-plugin-sdk, not other steampipe-plugin-* repos
+      query = 'org:turbot is:open'
+      and repository_full_name = 'turbot/steampipe-mod-aws-compliance'
       and "user" ->> 'login' not in (
         select
           jsonb_array_elements_text(g.member_logins) as member_login
@@ -102,15 +106,26 @@ query "github_pull_request_tool_external_count" {
     EOQ
 }
 
-query "github_pull_request_doc_external_count" {
+
+
+query "github_pull_request_open_plugin_mod_total_days_count" {
   sql = <<-EOQ
     select
-      count(*) as "Docs Pull Requests"
+      'Total' as label,
+      case
+        when sum(now()::date - created_at::date) is null then '0 days'
+        else sum(now()::date - created_at::date) || ' days'
+      end as value,
+      case
+        when sum(now()::date - created_at::date) > 30 then 'alert'
+        else 'ok'
+      end as type
     from
       github_search_pull_request
     where
-      query='org:turbot is:open'
-      and repository_full_name = 'turbot/steampipe-docs'
+      query = 'org:turbot is:open'
+      and repository_full_name ~ 'turbot/steampipe-(plugin|mod)'
+      and repository_full_name <> 'turbot/steampipe-plugin-sdk'
       and "user" ->> 'login' not in (
         select
           jsonb_array_elements_text(g.member_logins) as member_login
@@ -125,11 +140,19 @@ query "github_pull_request_doc_external_count" {
 query "github_pull_request_plugin_external_count" {
   sql = <<-EOQ
     select
-      count(*) as "Plugin Pull Requests"
+      'Plugins' as label,
+      case
+        when sum(now()::date - created_at::date) is null then '0 days'
+        else sum(now()::date - created_at::date) || ' days'
+      end as value,
+      case
+        when sum(now()::date - created_at::date) > 30 then 'alert'
+        else 'ok'
+      end as type
     from
       github_search_pull_request
     where
-      query='org:turbot is:open'
+      query = 'org:turbot is:open'
       and repository_full_name ~ 'turbot/steampipe-plugin'
       and repository_full_name <> 'turbot/steampipe-plugin-sdk'
       and "user" ->> 'login' not in (
@@ -146,11 +169,19 @@ query "github_pull_request_plugin_external_count" {
 query "github_pull_request_mod_external_count" {
   sql = <<-EOQ
     select
-      count(*) as "Mod Pull Requests"
+      'Mods' as label,
+      case
+        when sum(now()::date - created_at::date) is null then '0 days'
+        else sum(now()::date - created_at::date) || ' days'
+      end as value,
+      case
+        when sum(now()::date - created_at::date) > 30 then 'alert'
+        else 'ok'
+      end as type
     from
       github_search_pull_request
     where
-      query='org:turbot is:open'
+      query = 'org:turbot is:open'
       and repository_full_name ~ 'turbot/steampipe-mod'
       and "user" ->> 'login' not in (
         select
@@ -163,27 +194,7 @@ query "github_pull_request_mod_external_count" {
     EOQ
 }
 
-query "github_pull_request_open_total_days_count" {
-  sql = <<-EOQ
-    select
-      sum(now()::date - created_at::date) as "Total Days"
-    from
-      github_search_pull_request
-    where
-      query='org:turbot is:open'
-      and (repository_full_name ~ 'turbot/steampipe-(docs|fdw|mod|plugin)' or repository_full_name = 'turbot/steampipe') -- SDK repo is called steampipe-plugin-sdk
-      and "user" ->> 'login' not in (
-        select
-          jsonb_array_elements_text(g.member_logins) as member_login
-        from
-          github_my_organization g
-        where
-          g.login = 'turbot'
-       );
-    EOQ
-}
-
-query "github_pull_request_external_detail" {
+query "github_pull_request_open_plugin_mod_table" {
   sql = <<-EOQ
     select
       repository_full_name as "Repository",
@@ -195,8 +206,9 @@ query "github_pull_request_external_detail" {
     from
       github_search_pull_request
     where
-      query='org:turbot is:open'
-      and (repository_full_name ~ 'turbot/steampipe-(docs|fdw|mod|plugin)' or repository_full_name = 'turbot/steampipe') -- SDK repo is called steampipe-plugin-sdk
+      query = 'org:turbot is:open'
+      and repository_full_name ~ 'turbot/steampipe-(plugin|mod)'
+      and repository_full_name <> 'turbot/steampipe-plugin-sdk'
       and "user" ->> 'login' not in (
         select
           jsonb_array_elements_text(g.member_logins) as member_login
@@ -209,3 +221,4 @@ query "github_pull_request_external_detail" {
       "Age in Days" desc;
   EOQ
 }
+

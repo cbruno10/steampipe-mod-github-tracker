@@ -10,6 +10,6 @@ locals {
 mod "github_tracker" {
   # hub metadata
   title         = "GitHub Tracker"
-  description   = "Track GitHub issues and PRs."
+  description   = "Track GitHub open issues and PRs."
   color         = "#191717"
 }

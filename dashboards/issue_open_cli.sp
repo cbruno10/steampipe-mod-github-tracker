@@ -138,8 +138,8 @@ query "github_issue_fdw_external_count" {
     select
       'FDW' as label,
       case
-        when sum(now()::date - created_at::date) is null then 0
-        else sum(now()::date - created_at::date)
+        when sum(now()::date - created_at::date) is null then '0 days'
+        else sum(now()::date - created_at::date) || ' days'
       end as value,
       case
         when sum(now()::date - created_at::date) > 30 then 'alert'

@@ -37,12 +37,12 @@ dashboard "github_open_plugin_mod_pull_request_report" {
     table {
       sql = query.github_pull_request_open_plugin_mod_table.sql
 
-      column "html_url" {
+      column "url" {
         display = "none"
       }
 
       column "Pull Request" {
-        href = "{{.'html_url'}}"
+        href = "{{.'url'}}"
       }
     }
 
@@ -67,13 +67,13 @@ query "github_pull_request_aws_plugin_external_count" {
     where
       query = 'org:turbot is:open'
       and repository_full_name = 'turbot/steampipe-plugin-aws'
-      and "user" ->> 'login' not in (
+      and author ->> 'login' not in (
         select
-          jsonb_array_elements_text(g.member_logins) as member_login
+          m.login as member_login
         from
-          github_my_organization g
+          github_organization_member m
         where
-          g.login = 'turbot'
+          m.organization = 'turbot'
        );
     EOQ
 }
@@ -95,18 +95,16 @@ query "github_pull_request_aws_compliance_mod_external_count" {
     where
       query = 'org:turbot is:open'
       and repository_full_name = 'turbot/steampipe-mod-aws-compliance'
-      and "user" ->> 'login' not in (
+      and author ->> 'login' not in (
         select
-          jsonb_array_elements_text(g.member_logins) as member_login
+          m.login as member_login
         from
-          github_my_organization g
+          github_organization_member m
         where
-          g.login = 'turbot'
+          m.organization = 'turbot'
        );
     EOQ
 }
-
-
 
 query "github_pull_request_open_plugin_mod_total_days_count" {
   sql = <<-EOQ
@@ -126,13 +124,13 @@ query "github_pull_request_open_plugin_mod_total_days_count" {
       query = 'org:turbot is:open'
       and repository_full_name ~ 'turbot/steampipe-(plugin|mod)'
       and repository_full_name <> 'turbot/steampipe-plugin-sdk'
-      and "user" ->> 'login' not in (
+      and author ->> 'login' not in (
         select
-          jsonb_array_elements_text(g.member_logins) as member_login
+          m.login as member_login
         from
-          github_my_organization g
+          github_organization_member m
         where
-          g.login = 'turbot'
+          m.organization = 'turbot'
        );
     EOQ
 }
@@ -155,13 +153,13 @@ query "github_pull_request_plugin_external_count" {
       query = 'org:turbot is:open'
       and repository_full_name ~ 'turbot/steampipe-plugin'
       and repository_full_name <> 'turbot/steampipe-plugin-sdk'
-      and "user" ->> 'login' not in (
+      and author ->> 'login' not in (
         select
-          jsonb_array_elements_text(g.member_logins) as member_login
+          m.login as member_login
         from
-          github_my_organization g
+          github_organization_member m
         where
-          g.login = 'turbot'
+          m.organization = 'turbot'
        );
     EOQ
 }
@@ -183,13 +181,13 @@ query "github_pull_request_mod_external_count" {
     where
       query = 'org:turbot is:open'
       and repository_full_name ~ 'turbot/steampipe-mod'
-      and "user" ->> 'login' not in (
+      and author ->> 'login' not in (
         select
-          jsonb_array_elements_text(g.member_logins) as member_login
+          m.login as member_login
         from
-          github_my_organization g
+          github_organization_member m
         where
-          g.login = 'turbot'
+          m.organization = 'turbot'
        );
     EOQ
 }
@@ -201,21 +199,21 @@ query "github_pull_request_open_plugin_mod_table" {
       title as "Pull Request",
       now()::date - created_at::date as "Age in Days",
       now()::date - updated_at::date as "Last Updated (Days)",
-      "user" ->> 'login' as "Author",
-      html_url
+      author ->> 'login' as "Author",
+      url
     from
       github_search_pull_request
     where
       query = 'org:turbot is:open'
       and repository_full_name ~ 'turbot/steampipe-(plugin|mod)'
       and repository_full_name <> 'turbot/steampipe-plugin-sdk'
-      and "user" ->> 'login' not in (
+      and author ->> 'login' not in (
         select
-          jsonb_array_elements_text(g.member_logins) as member_login
+          m.login as member_login
         from
-          github_my_organization g
+          github_organization_member m
         where
-          g.login = 'turbot'
+          m.organization = 'turbot'
         )
     order by
       "Age in Days" desc;

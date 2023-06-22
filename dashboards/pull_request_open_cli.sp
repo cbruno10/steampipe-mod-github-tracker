@@ -24,7 +24,7 @@ dashboard "github_open_cli_pull_request_report" {
     }
 
     card {
-      sql   = query.github_pull_request_docsexternal_count.sql
+      sql   = query.github_pull_request_docs_external_count.sql
       width = 2
     }
 
@@ -36,12 +36,12 @@ dashboard "github_open_cli_pull_request_report" {
     table {
       sql = query.github_pull_request_cli_table.sql
 
-      column "html_url" {
+      column "url" {
         display = "none"
       }
 
       column "Pull Request" {
-        href = "{{.'html_url'}}"
+        href = "{{.'url'}}"
       }
     }
 
@@ -66,13 +66,13 @@ query "github_pull_request_open_cli_total_days_count" {
     where
       query = 'org:turbot is:open'
       and (repository_full_name ~ 'turbot/steampipe-(docs|fdw|plugin-sdk)' or repository_full_name = 'turbot/steampipe')
-      and "user" ->> 'login' not in (
+      and author ->> 'login' not in (
         select
-          jsonb_array_elements_text(g.member_logins) as member_login
+          m.login as member_login
         from
-          github_my_organization g
+          github_organization_member m
         where
-          g.login = 'turbot'
+          m.organization = 'turbot'
        );
     EOQ
 }
@@ -94,13 +94,13 @@ query "github_pull_request_cli_external_count" {
     where
       query = 'org:turbot is:open'
       and repository_full_name = 'turbot/steampipe'
-      and "user" ->> 'login' not in (
+      and author ->> 'login' not in (
         select
-          jsonb_array_elements_text(g.member_logins) as member_login
+          m.login as member_login
         from
-          github_my_organization g
+          github_organization_member m
         where
-          g.login = 'turbot'
+          m.organization = 'turbot'
        );
     EOQ
 }
@@ -122,13 +122,13 @@ query "github_pull_request_sdk_external_count" {
     where
       query = 'org:turbot is:open'
       and repository_full_name = 'turbot/steampipe-plugin-sdk'
-      and "user" ->> 'login' not in (
+      and author ->> 'login' not in (
         select
-          jsonb_array_elements_text(g.member_logins) as member_login
+          m.login as member_login
         from
-          github_my_organization g
+          github_organization_member m
         where
-          g.login = 'turbot'
+          m.organization = 'turbot'
        );
     EOQ
 }
@@ -150,19 +150,18 @@ query "github_pull_request_fdw_external_count" {
     where
       query = 'org:turbot is:open'
       and repository_full_name = 'turbot/steampipe-fdw'
-      and "user" ->> 'login' not in (
+      and author ->> 'login' not in (
         select
-          jsonb_array_elements_text(g.member_logins) as member_login
+          m.login as member_login
         from
-          github_my_organization g
+          github_organization_member m
         where
-          g.login = 'turbot'
+          m.organization = 'turbot'
        );
     EOQ
 }
 
-
-query "github_pull_request_docsexternal_count" {
+query "github_pull_request_docs_external_count" {
   sql = <<-EOQ
     select
       'Docs' as label,
@@ -179,13 +178,13 @@ query "github_pull_request_docsexternal_count" {
     where
       query = 'org:turbot is:open'
       and repository_full_name = 'turbot/steampipe-docs'
-      and "user" ->> 'login' not in (
+      and author ->> 'login' not in (
         select
-          jsonb_array_elements_text(g.member_logins) as member_login
+          m.login as member_login
         from
-          github_my_organization g
+          github_organization_member m
         where
-          g.login = 'turbot'
+          m.organization = 'turbot'
        );
     EOQ
 }
@@ -197,20 +196,20 @@ query "github_pull_request_cli_table" {
       title as "Pull Request",
       now()::date - created_at::date as "Age in Days",
       now()::date - updated_at::date as "Last Updated (Days)",
-      "user" ->> 'login' as "Author",
-      html_url
+      author ->> 'login' as "Author",
+      url
     from
       github_search_pull_request
     where
       query = 'org:turbot is:open'
       and (repository_full_name ~ 'turbot/steampipe-(docs|fdw|plugin-sdk)' or repository_full_name = 'turbot/steampipe')
-      and "user" ->> 'login' not in (
+      and author ->> 'login' not in (
         select
-          jsonb_array_elements_text(g.member_logins) as member_login
+          m.login as member_login
         from
-          github_my_organization g
+          github_organization_member m
         where
-          g.login = 'turbot'
+          m.organization = 'turbot'
         )
     order by
       "Age in Days" desc;

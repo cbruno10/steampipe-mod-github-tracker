@@ -1,45 +1,45 @@
-dashboard "github_insight" {
+dashboard "github_open_issue_pull_request_graphs" {
 
-  title = "GitHub Insights"
+  title = "GitHub Open Issue and Pull Request Graphs"
 
-  tags = merge(local.github_insight_common_tags, {
+  tags = merge(local.github_common_tags, {
     type = "Dashboard"
   })
 
   container {
 
     chart {
-      title = "GitHub Open CLI Issues"
+      title = "Open CLI Issues"
       type  = "line"
-      query = query.cli_issues
+      query = query.github_issue_cli_graph
       width = 6
     }
 
     chart {
-      title = "GitHub Open CLI Pull Requests"
+      title = "Open CLI Pull Requests"
       type  = "line"
-      query = query.cli_pull_requests
+      query = query.github_pull_request_cli_graph
       width = 6
     }
 
     chart {
-      title = "GitHub Open Plugin and Mod Issues"
+      title = "Open Plugin and Mod Issues"
       type  = "line"
-      query = query.plugin_and_mod_issues
+      query = query.github_issue_plugin_mod_graph
       width = 6
     }
 
     chart {
-      title = "GitHub Open Plugin and Mod Pull Requests"
+      title = "Open Plugin and Mod Pull Requests"
       type  = "line"
-      query = query.plugin_and_mod_pull_requests
+      query = query.github_pull_request_plugin_mod_graph
       width = 6
     }
   }
 
 }
 
-query "cli_issues" {
+query "github_issue_cli_graph" {
   sql = <<-EOQ
     select
       created_at as "Date",
@@ -54,7 +54,7 @@ query "cli_issues" {
   EOQ
 }
 
-query "cli_pull_requests" {
+query "github_pull_request_cli_graph" {
   sql = <<-EOQ
     select
       created_at as "Date",
@@ -69,7 +69,7 @@ query "cli_pull_requests" {
   EOQ
 }
 
-query "plugin_and_mod_issues" {
+query "github_issue_plugin_mod_graph" {
   sql = <<-EOQ
     select
       created_at as "Date",
@@ -84,7 +84,7 @@ query "plugin_and_mod_issues" {
   EOQ
 }
 
-query "plugin_and_mod_pull_requests" {
+query "github_pull_request_plugin_mod_graph" {
   sql = <<-EOQ
     select
       created_at as "Date",

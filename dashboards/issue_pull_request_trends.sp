@@ -47,6 +47,8 @@ query "github_issue_cli_trend" {
     from
       pipes_workspace_snapshot,
       jsonb_array_elements(data -> 'panels' -> 'github_tracker.table.container_dashboard_github_open_cli_issue_report_anonymous_container_0_anonymous_table_0' -> 'data' -> 'rows') as r
+    where
+      dashboard_name = 'github_tracker.dashboard.github_open_cli_issue_report'
     group by
       created_at
     order by
@@ -62,6 +64,8 @@ query "github_pull_request_cli_trend" {
     from
       pipes_workspace_snapshot,
       jsonb_array_elements(data -> 'panels' -> 'github_tracker.table.container_dashboard_github_open_cli_pull_request_report_anonymous_container_0_anonymous_table_0' -> 'data' -> 'rows') as r
+    where
+      dashboard_name = 'github_tracker.dashboard.github_open_cli_pull_request_report'
     group by
       created_at
     order by
@@ -77,6 +81,8 @@ query "github_issue_plugin_mod_trend" {
     from
       pipes_workspace_snapshot,
       jsonb_array_elements(data -> 'panels' -> 'github_tracker.table.container_dashboard_github_open_plugin_mod_issue_report_anonymous_container_0_anonymous_table_0' -> 'data' -> 'rows') as r
+    where
+      dashboard_name = 'github_tracker.dashboard.github_open_plugin_mod_issue_report'
     group by
       created_at
     order by
@@ -92,6 +98,8 @@ query "github_pull_request_plugin_mod_trend" {
     from
       pipes_workspace_snapshot,
       jsonb_array_elements(data -> 'panels' -> 'github_tracker.table.container_dashboard_github_open_plugin_mod_pull_request_report_anonymous_container_0_anonymous_table_0' -> 'data' -> 'rows') as r
+    where
+      dashboard_name = 'github_tracker.dashboard.github_open_plugin_mod_pull_request_report'
     group by
       created_at
     order by

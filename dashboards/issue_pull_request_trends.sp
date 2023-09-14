@@ -9,51 +9,31 @@ dashboard "github_open_issue_pull_request_trends" {
   container {
 
     chart {
-      title = "Open CLI Issues"
+      title = "Open CLI Issues Total Age (Days)"
       type  = "line"
       query = query.github_issue_cli_trend
       width = 6
-
-      legend {
-        display = "all"
-        position = "top"
-      }
     }
 
     chart {
-      title = "Open CLI Pull Requests"
+      title = "Open CLI Pull Requests Total Age (Days)"
       type  = "line"
       query = query.github_pull_request_cli_trend
       width = 6
-
-      legend {
-        display = "all"
-        position = "top"
-      }
     }
 
     chart {
-      title = "Open Plugin and Mod Issues"
+      title = "Open Plugin and Mod Issues Total Age (Days)"
       type  = "line"
       query = query.github_issue_plugin_mod_trend
       width = 6
-
-      legend {
-        display = "all"
-        position = "top"
-      }
     }
 
     chart {
-      title = "Open Plugin and Mod Pull Requests"
+      title = "Open Plugin and Mod Pull Requests Total Age (Days)"
       type  = "line"
       query = query.github_pull_request_plugin_mod_trend
       width = 6
-
-      legend {
-        display = "all"
-        position = "top"
-      }
     }
   }
 

@@ -7,12 +7,12 @@ locals {
 benchmark "organization_checks" {
   title = "GitHub Organization Checks"
   children = [
-    control.org_description_set,
-    control.org_domain_verified,
-    control.org_email_set,
-    control.org_homepage_set,
-    control.org_profile_pic_set,
-    control.org_two_factor_authentication_required // This check is also available in github-insights mod
+    control.organization_description_set,
+    control.organization_domain_verified,
+    control.organization_email_set,
+    control.organization_homepage_set,
+    control.organization_profile_pic_set,
+    control.organization_two_factor_authentication_required // This check is also available in github-insights mod
   ]
 
   tags = merge(local.github_organization_checks_common_tags, {
@@ -20,7 +20,7 @@ benchmark "organization_checks" {
   })
 }
 
-control "org_two_factor_authentication_required" {
+control "organization_two_factor_authentication_required" {
   title       = "Two-factor authentication should be required for users in an organization"
   description = "Two-factor authentication makes it harder for unauthorized actors to access repositories and organizations."
   tags        = local.github_organization_checks_common_tags
@@ -32,7 +32,7 @@ control "org_two_factor_authentication_required" {
         when two_factor_requirement_enabled then 'ok'
         else 'alarm'
       end as status,
-      login ||
+      coalesce(name, login) ||
         case
           when two_factor_requirement_enabled is null then ' 2FA requirement unverifiable'
           when (two_factor_requirement_enabled)::bool then ' requires 2FA'
@@ -44,7 +44,7 @@ control "org_two_factor_authentication_required" {
   EOT
 }
 
-control "org_email_set" {
+control "organization_email_set" {
   title       = "Organization email should be set"
   description = "Setting an email provides useful contact information for users."
   tags        = local.github_organization_checks_common_tags
@@ -63,7 +63,7 @@ control "org_email_set" {
   EOT
 }
 
-control "org_description_set" {
+control "organization_description_set" {
   title       = "Organization description should be set"
   description = "Setting a description helps users learn more about your organization."
   tags        = local.github_organization_checks_common_tags
@@ -81,7 +81,7 @@ control "org_description_set" {
   EOT
 }
 
-control "org_profile_pic_set" {
+control "organization_profile_pic_set" {
   title       = "Organization profile picture should be set"
   description = "Setting a profile picture helps users recognize your brand."
   tags        = local.github_organization_checks_common_tags
@@ -99,7 +99,7 @@ control "org_profile_pic_set" {
   EOT
 }
 
-control "org_profile_pic_set" {
+control "organization_profile_pic_set" {
   title       = "Organization profile picture should be set"
   description = "Setting a profile picture helps users recognize your brand."
   tags        = local.github_organization_checks_common_tags
@@ -117,7 +117,7 @@ control "org_profile_pic_set" {
   EOT
 }
 
-control "org_domain_verified" {
+control "organization_domain_verified" {
   title       = "Domain should be verified in an organization"
   description = "Verifying your domain helps to confirm the organization's identity and send emails to users with verified emails."
   tags        = local.github_organization_checks_common_tags
@@ -135,7 +135,7 @@ control "org_domain_verified" {
   EOT
 }
 
-control "org_homepage_set" {
+control "organization_homepage_set" {
   title       = "Organization homepage should be set"
   description = "Setting a homepage helps users learn more about your organization."
   tags        = local.github_organization_checks_common_tags

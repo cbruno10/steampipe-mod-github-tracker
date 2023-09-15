@@ -4,12 +4,41 @@ locals {
   })
 }
 
+variable "github_external_repository_names" {
+  type        = list(string)
+  description = "A list of community repositories to run checks for."
+
+  default = [
+    "ellisvalentiner/steampipe-plugin-confluence",
+    "ellisvalentiner/steampipe-plugin-weatherkit",
+    "ernw/steampipe-plugin-openstack",
+    "francois2metz/steampipe-plugin-airtable",
+    "francois2metz/steampipe-plugin-baleen",
+    "francois2metz/steampipe-plugin-freshping",
+    "francois2metz/steampipe-plugin-gandi",
+    "francois2metz/steampipe-plugin-gitguardian",
+    "francois2metz/steampipe-plugin-ovh",
+    "francois2metz/steampipe-plugin-scalingo",
+    "ip2location/steampipe-plugin-ip2locationio",
+    "kaggrwal/steampipe-plugin-bitfinex",
+    "marekjalovec/steampipe-plugin-make",
+    "mr-destructive/steampipe-plugin-cohereai",
+    "solacelabs/steampipe-plugin-solace",
+    "theapsgroup/steampipe-plugin-clickup",
+    "theapsgroup/steampipe-plugin-freshservice",
+    "theapsgroup/steampipe-plugin-gitlab",
+    "theapsgroup/steampipe-plugin-keycloak",
+    "theapsgroup/steampipe-plugin-vault",
+    "tomba-io/steampipe-plugin-tomba",
+  ]
+}
+
 benchmark "repository_checks" {
   title = "GitHub Repository Checks"
   children = [
-    benchmark.mod_repository_checks,
-    benchmark.plugin_mod_repository_checks,
-    benchmark.plugin_repository_checks,
+    benchmark.repository_mod_checks,
+    benchmark.repository_plugin_checks,
+    benchmark.repository_plugin_mod_checks,
   ]
 
   tags = merge(local.github_repository_checks_common_tags, {
@@ -17,54 +46,12 @@ benchmark "repository_checks" {
   })
 }
 
-variable "github_external_repo_names" {
-  type        = list(string)
-  description = "A list of community repositories to run checks for."
-  default     = [ "francois2metz/steampipe-plugin-ovh", "theapsgroup/steampipe-plugin-vault", "francois2metz/steampipe-plugin-scalingo", "francois2metz/steampipe-plugin-gandi", "francois2metz/steampipe-plugin-airtable", "theapsgroup/steampipe-plugin-gitlab", "ellisvalentiner/steampipe-plugin-confluence", "theapsgroup/steampipe-plugin-keycloak", "ip2location/steampipe-plugin-ip2locationio", "kaggrwal/steampipe-plugin-bitfinex", "mr-destructive/steampipe-plugin-cohereai", "solacelabs/steampipe-plugin-solace", "theapsgroup/steampipe-plugin-clickup", "ellisvalentiner/steampipe-plugin-weatherkit", "tomba-io/steampipe-plugin-tomba", "ernw/steampipe-plugin-openstack", "theapsgroup/steampipe-plugin-freshservice", "francois2metz/steampipe-plugin-freshping", "marekjalovec/steampipe-plugin-make", "francois2metz/steampipe-plugin-gitguardian", "francois2metz/steampipe-plugin-baleen" ]
-}
-
-benchmark "plugin_mod_repository_checks" {
-  title = "GitHub Plugin and Mod Repository Checks"
-  children = [
-    # control.repo_has_no_collaborators,
-    control.branch_protection_enabled,
-    control.license_is_apache,
-    control.repo_auto_merge_allowed,
-    control.repo_forking_enabled,
-    control.repo_homepage_links_to_hub,
-    control.repo_is_public,
-    control.repo_projects_disabled,
-    control.repo_squash_merge_allowed,
-    control.repo_web_commit_signoff_required,
-    control.repo_wiki_disabled,
-    control.vulnerability_alerts_enabled,
-  ]
-
-  tags = merge(local.github_repository_checks_common_tags, {
-    type = "Benchmark"
-  })
-}
-
-benchmark "plugin_repository_checks" {
-  title = "GitHub Plugin Repository Checks"
-  children = [
-    control.plugin_repo_description,
-    control.plugin_repo_has_mandatory_topics,
-    control.plugin_repo_language_is_go,
-    control.plugin_uses_semantic_versioning,
-  ]
-
-  tags = merge(local.github_repository_checks_common_tags, {
-    type = "Benchmark"
-  })
-}
-
-benchmark "mod_repository_checks" {
+benchmark "repository_mod_checks" {
   title = "GitHub Mod Repository Checks"
   children = [
-    control.mod_repo_has_mandatory_topics,
-    control.mod_repo_language_is_hcl,
-    control.mod_uses_monotonic_versioning,
+    control.repository_mod_has_mandatory_topics,
+    control.repository_mod_language_is_hcl,
+    control.repository_mod_uses_monotonic_versioning,
   ]
 
   tags = merge(local.github_repository_checks_common_tags, {
@@ -72,8 +59,43 @@ benchmark "mod_repository_checks" {
   })
 }
 
-control "plugin_repo_description" {
-  title = "Plugin repo has standard description"
+benchmark "repository_plugin_checks" {
+  title = "GitHub Plugin Repository Checks"
+  children = [
+    control.repository_plugin_description_is_set,
+    control.repository_plugin_has_mandatory_topics,
+    control.repository_plugin_language_is_go,
+    control.repository_plugin_uses_semantic_versioning,
+  ]
+
+  tags = merge(local.github_repository_checks_common_tags, {
+    type = "Benchmark"
+  })
+}
+
+benchmark "repository_plugin_mod_checks" {
+  title = "GitHub Plugin and Mod Repository Checks"
+  children = [
+    control.repository_auto_merge_allowed,
+    control.repository_branch_protection_enabled,
+    control.repository_forking_enabled,
+    control.repository_homepage_links_to_hub,
+    control.repository_is_public,
+    control.repository_license_is_apache,
+    control.repository_projects_disabled,
+    control.repository_squash_merge_allowed,
+    control.repository_vulnerability_alerts_enabled,
+    control.repository_web_commit_signoff_required,
+    control.repository_wiki_disabled,
+  ]
+
+  tags = merge(local.github_repository_checks_common_tags, {
+    type = "Benchmark"
+  })
+}
+
+control "repository_plugin_description_is_set" {
+  title = "Plugin repository has standard description"
   sql = <<-EOT
     (
     select
@@ -87,7 +109,7 @@ control "plugin_repo_description" {
     from
       github_my_repository
     where
-      name_with_owner like 'turbot/steampipe-plugin-%'
+      name_with_owner like 'steampipe-plugin-%'
     )
     union
     (
@@ -105,14 +127,14 @@ control "plugin_repo_description" {
       full_name in (select jsonb_array_elements_text(to_jsonb($1::text[])))
     )
   EOT
-  param "github_external_repo_names" {
+  param "github_external_repository_names" {
     description = "External repo names."
-    default     = var.github_external_repo_names
+    default     = var.github_external_repository_names
   }
 }
 
-control "plugin_repo_has_mandatory_topics" {
-  title = "Plugin repo has mandatory topics"
+control "repository_plugin_has_mandatory_topics" {
+  title = "Plugin repository has mandatory topics"
   sql = <<-EOT
     (
     with input as (
@@ -128,7 +150,7 @@ control "plugin_repo_has_mandatory_topics" {
         github_my_repository,
         input
       where
-        name_with_owner like 'turbot/steampipe-plugin-%'
+        name_with_owner like 'steampipe-plugin-%'
     )
     select
       url as resource,
@@ -176,14 +198,14 @@ control "plugin_repo_has_mandatory_topics" {
       analysis
     )
   EOT
-  param "github_external_repo_names" {
+  param "github_external_repository_names" {
     description = "External repo names."
-    default     = var.github_external_repo_names
+    default     = var.github_external_repository_names
   }
 }
 
-control "mod_repo_has_mandatory_topics" {
-  title = "Mod repo has mandatory topics"
+control "repository_mod_has_mandatory_topics" {
+  title = "Mod repository has mandatory topics"
   sql = <<-EOT
     with input as (
       select array['sql', 'steampipe', 'steampipe-mod'] as mandatory_topics
@@ -198,7 +220,7 @@ control "mod_repo_has_mandatory_topics" {
         github_my_repository,
         input
       where
-        name_with_owner like 'turbot/steampipe-mod-%'
+        name_with_owner like 'steampipe-mod-%'
         and name_with_owner not like '%-wip'
     )
     select
@@ -217,7 +239,7 @@ control "mod_repo_has_mandatory_topics" {
   EOT
 }
 
-control "plugin_uses_semantic_versioning" {
+control "repository_plugin_uses_semantic_versioning" {
   title = "Plugin uses semantic versioning"
   sql = <<-EOT
     (
@@ -234,7 +256,7 @@ control "plugin_uses_semantic_versioning" {
       github_my_repository as r,
       github_tag as t
     where
-      r.name_with_owner like 'turbot/steampipe-plugin-%'
+      r.name_with_owner like 'steampipe-plugin-%'
       and r.name_with_owner = t.repository_full_name
     )
     union
@@ -257,13 +279,13 @@ control "plugin_uses_semantic_versioning" {
     )
 
   EOT
-  param "github_external_repo_names" {
+  param "github_external_repository_names" {
     description = "External repo names."
-    default     = var.github_external_repo_names
+    default     = var.github_external_repository_names
   }
 }
 
-control "mod_uses_monotonic_versioning" {
+control "repository_mod_uses_monotonic_versioning" {
   title = "Mod uses monotonic versioning"
   sql = <<-EOT
     select
@@ -279,13 +301,13 @@ control "mod_uses_monotonic_versioning" {
       github_my_repository as r,
       github_tag as t
     where
-      r.name_with_owner like 'turbot/steampipe-mod-%'
+      r.name_with_owner like 'steampipe-mod-%'
       and r.name_with_owner not like '%-wip'
       and r.name_with_owner = t.repository_full_name
   EOT
 }
 
-control "license_is_apache" {
+control "repository_license_is_apache" {
   title = "License is Apache 2.0"
   sql = <<-EOT
     (
@@ -300,7 +322,7 @@ control "license_is_apache" {
     from
       github_my_repository
     where
-      name_with_owner ~ '^turbot/steampipe-(mod|plugin)-.+'
+      name_with_owner ~ '^steampipe-(mod|plugin)-.+'
       and name_with_owner not like '%-wip'
     )
     union
@@ -321,31 +343,31 @@ control "license_is_apache" {
     )
 
   EOT
-  param "github_external_repo_names" {
+  param "github_external_repository_names" {
     description = "External repo names."
-    default     = var.github_external_repo_names
+    default     = var.github_external_repository_names
   }
 }
 
-control "vulnerability_alerts_enabled" {
+control "repository_vulnerability_alerts_enabled" {
   title = "Vulnerability Alerts are enabled"
   sql = <<-EOT
     (
     select
       url as resource,
       case
-        when has_vulnerability_alerts_enabled then 'ok'
+        when has_repository_vulnerability_alerts_enabled then 'ok'
         else 'alarm'
       end as status,
       case
-        when has_vulnerability_alerts_enabled then name_with_owner || ' vulnerability alerts enabled.'
+        when has_repository_vulnerability_alerts_enabled then name_with_owner || ' vulnerability alerts enabled.'
         else name_with_owner || ' vulnerability alerts disabled.'
       end as reason,
       name_with_owner
     from
       github_my_repository
     where
-      name_with_owner ~ '^turbot/steampipe-(mod|plugin)-.+'
+      name_with_owner ~ '^steampipe-(mod|plugin)-.+'
       and name_with_owner not like '%-wip'
     )
     union
@@ -353,11 +375,11 @@ control "vulnerability_alerts_enabled" {
     select
       url as resource,
       case
-        when has_vulnerability_alerts_enabled then 'ok'
+        when has_repository_vulnerability_alerts_enabled then 'ok'
         else 'alarm'
       end as status,
       case
-        when has_vulnerability_alerts_enabled then name_with_owner || ' vulnerability alerts enabled.'
+        when has_repository_vulnerability_alerts_enabled then name_with_owner || ' vulnerability alerts enabled.'
         else name_with_owner || ' vulnerability alerts disabled.'
       end as reason,
       name_with_owner
@@ -369,13 +391,13 @@ control "vulnerability_alerts_enabled" {
     )
 
   EOT
-  param "github_external_repo_names" {
+  param "github_external_repository_names" {
     description = "External repo names."
-    default     = var.github_external_repo_names
+    default     = var.github_external_repository_names
   }
 }
 
-control "branch_protection_enabled" {
+control "repository_branch_protection_enabled" {
   title = "Branch Protection is enabled"
   sql = <<-EOT
     (
@@ -393,7 +415,7 @@ control "branch_protection_enabled" {
     from
       github_my_repository
     where
-      name_with_owner ~ '^turbot/steampipe-(mod|plugin)-.+'
+      name_with_owner ~ '^steampipe-(mod|plugin)-.+'
       and name_with_owner not like '%-wip'
     )
     union
@@ -417,14 +439,14 @@ control "branch_protection_enabled" {
     )
 
   EOT
-  param "github_external_repo_names" {
+  param "github_external_repository_names" {
     description = "External repo names."
-    default     = var.github_external_repo_names
+    default     = var.github_external_repository_names
   }
 }
 
-control "repo_homepage_links_to_hub" {
-  title = "Repo homepage links to the Hub"
+control "repository_homepage_links_to_hub" {
+  title = "Mod and plugin repository homepage links to the Hub"
   sql = <<-EOT
     (
     select
@@ -438,7 +460,7 @@ control "repo_homepage_links_to_hub" {
     from
       github_my_repository
     where
-      name_with_owner ~ '^turbot/steampipe-(mod|plugin)-.+'
+      name_with_owner ~ '^steampipe-(mod|plugin)-.+'
       and name_with_owner not like '%-wip'
     )
     union
@@ -459,14 +481,14 @@ control "repo_homepage_links_to_hub" {
     )
 
   EOT
-  param "github_external_repo_names" {
+  param "github_external_repository_names" {
     description = "External repo names."
-    default     = var.github_external_repo_names
+    default     = var.github_external_repository_names
   }
 }
 
-control "repo_wiki_disabled" {
-  title = "Repo Wiki is Disabled"
+control "repository_wiki_disabled" {
+  title = "Mod and plugin repository Wiki is Disabled"
   sql = <<-EOT
     (
     select
@@ -480,7 +502,7 @@ control "repo_wiki_disabled" {
     from
       github_my_repository
     where
-      name_with_owner ~ '^turbot/steampipe-(mod|plugin)-.+'
+      name_with_owner ~ '^steampipe-(mod|plugin)-.+'
       and name_with_owner not like '%-wip'
     )
     union
@@ -500,14 +522,14 @@ control "repo_wiki_disabled" {
       and name_with_owner not like '%-wip'
     )
   EOT
-  param "github_external_repo_names" {
+  param "github_external_repository_names" {
     description = "External repo names."
-    default     = var.github_external_repo_names
+    default     = var.github_external_repository_names
   }
 }
 
-control "repo_projects_disabled" {
-  title = "Repo Projects is Disabled"
+control "repository_projects_disabled" {
+  title = "Mod and plugin repository Projects is Disabled"
   sql = <<-EOT
     (
     select
@@ -521,7 +543,7 @@ control "repo_projects_disabled" {
     from
       github_my_repository
     where
-      name_with_owner ~ '^turbot/steampipe-(mod|plugin)-.+'
+      name_with_owner ~ '^steampipe-(mod|plugin)-.+'
       and name_with_owner not like '%-wip'
     )
     union
@@ -542,56 +564,13 @@ control "repo_projects_disabled" {
     )
 
   EOT
-  param "github_external_repo_names" {
+  param "github_external_repository_names" {
     description = "External repo names."
-    default     = var.github_external_repo_names
+    default     = var.github_external_repository_names
   }
 }
 
-// TODO - collaborators is currently both inside and outside, so not helpful here
-# control "repo_has_no_collaborators" {
-#   title = "Repo has no collaborators"
-#   sql = <<-EOT
-#     (
-#     select
-#       url as resource,
-#       case
-#         when jsonb_array_length(collaborator_logins) = 0 then 'alarm'
-#         else 'ok'
-#       end as status,
-#       name_with_owner || ' has ' || jsonb_array_length(collaborator_logins) || ' collaborators.' as reason,
-#       name_with_owner
-#     from
-#       github_my_repository
-#     where
-#       name_with_owner ~ '^turbot/steampipe-(mod|plugin)-.+'
-#       and name_with_owner not like '%-wip'
-#     )
-#     union
-#     (
-#     select
-#       url as resource,
-#       case
-#         when jsonb_array_length(collaborator_logins) = 0 then 'alarm'
-#         else 'ok'
-#       end as status,
-#       name_with_owner || ' has ' || jsonb_array_length(collaborator_logins) || ' collaborators.' as reason,
-#       name_with_owner
-#     from
-#       github_repository
-#     where
-#       full_name in (select jsonb_array_elements_text(to_jsonb($1::text[])))
-#       and name_with_owner not like '%-wip'
-#     )
-
-#   EOT
-#   param "github_external_repo_names" {
-#     description = "External repo names."
-#     default     = var.github_external_repo_names
-#   }
-# }
-
-control "plugin_repo_language_is_go" {
+control "repository_plugin_language_is_go" {
   title = "Plugin repository language is Go"
   sql = <<-EOT
     (
@@ -606,7 +585,7 @@ control "plugin_repo_language_is_go" {
     from
       github_my_repository
     where
-      name_with_owner like 'turbot/steampipe-plugin-%'
+      name_with_owner like 'steampipe-plugin-%'
     )
     union
     (
@@ -625,13 +604,13 @@ control "plugin_repo_language_is_go" {
     )
 
   EOT
-  param "github_external_repo_names" {
+  param "github_external_repository_names" {
     description = "External repo names."
-    default     = var.github_external_repo_names
+    default     = var.github_external_repository_names
   }
 }
 
-control "mod_repo_language_is_hcl" {
+control "repository_mod_language_is_hcl" {
   title = "Mod repository language is HCL"
   sql = <<-EOT
     select
@@ -645,13 +624,13 @@ control "mod_repo_language_is_hcl" {
     from
       github_my_repository
     where
-      name_with_owner like 'turbot/steampipe-mod-%'
+      name_with_owner like 'steampipe-mod-%'
       and name_with_owner not like '%-wip'
   EOT
 }
 
-control "repo_is_public" {
-  title = "Repository is public"
+control "repository_is_public" {
+  title = "Mod and plugin repository is public"
   sql = <<-EOT
     (
     select
@@ -665,7 +644,7 @@ control "repo_is_public" {
     from
       github_my_repository
     where
-      name_with_owner ~ '^turbot/steampipe-(mod|plugin)-.+'
+      name_with_owner ~ '^steampipe-(mod|plugin)-.+'
       and name_with_owner not like '%-wip'
     )
     union
@@ -686,14 +665,14 @@ control "repo_is_public" {
     )
 
   EOT
-  param "github_external_repo_names" {
+  param "github_external_repository_names" {
     description = "External repo names."
-    default     = var.github_external_repo_names
+    default     = var.github_external_repository_names
   }
 }
 
-control "repo_squash_merge_allowed" {
-  title = "Repository squash merging is allowed"
+control "repository_squash_merge_allowed" {
+  title = "Mod and plugin repository squash merging is allowed"
   sql = <<-EOT
     (
     select
@@ -709,7 +688,7 @@ control "repo_squash_merge_allowed" {
     from
       github_my_repository
     where
-      name_with_owner ~ '^turbot/steampipe-(mod|plugin)-.+'
+      name_with_owner ~ '^steampipe-(mod|plugin)-.+'
       and name_with_owner not like '%-wip'
     )
     union
@@ -732,14 +711,14 @@ control "repo_squash_merge_allowed" {
     )
 
   EOT
-  param "github_external_repo_names" {
+  param "github_external_repository_names" {
     description = "External repo names."
-    default     = var.github_external_repo_names
+    default     = var.github_external_repository_names
   }
 }
 
-control "repo_auto_merge_allowed" {
-  title = "Repository auto merging is allowed"
+control "repository_auto_merge_allowed" {
+  title = "Mod and plugin repository auto merging is allowed"
   sql = <<-EOT
     (
     select
@@ -755,7 +734,7 @@ control "repo_auto_merge_allowed" {
     from
       github_my_repository
     where
-      name_with_owner ~ '^turbot/steampipe-(mod|plugin)-.+'
+      name_with_owner ~ '^steampipe-(mod|plugin)-.+'
     )
     union
     (
@@ -776,14 +755,14 @@ control "repo_auto_merge_allowed" {
     )
 
   EOT
-  param "github_external_repo_names" {
+  param "github_external_repository_names" {
     description = "External repo names."
-    default     = var.github_external_repo_names
+    default     = var.github_external_repository_names
   }
 }
 
-control "repo_forking_enabled" {
-  title = "Repository forking is enabled"
+control "repository_forking_enabled" {
+  title = "Mod and plugin repository forking is enabled"
   sql = <<-EOT
     (
     select
@@ -801,7 +780,7 @@ control "repo_forking_enabled" {
     from
       github_my_repository
     where
-      name_with_owner ~ '^turbot/steampipe-(mod|plugin)-.+'
+      name_with_owner ~ '^steampipe-(mod|plugin)-.+'
     )
     union
     (
@@ -824,14 +803,14 @@ control "repo_forking_enabled" {
     )
 
   EOT
-  param "github_external_repo_names" {
+  param "github_external_repository_names" {
     description = "External repo names."
-    default     = var.github_external_repo_names
+    default     = var.github_external_repository_names
   }
 }
 
-control "repo_web_commit_signoff_required" {
-  title = "Repository web commit sign-off required"
+control "repository_web_commit_signoff_required" {
+  title = "Mod and plugin repository web commit sign-off required"
   sql = <<-EOT
     (
     select
@@ -847,7 +826,7 @@ control "repo_web_commit_signoff_required" {
     from
       github_my_repository
     where
-      name_with_owner ~ '^turbot/steampipe-(mod|plugin)-.+'
+      name_with_owner ~ '^steampipe-(mod|plugin)-.+'
     )
     union
     (
@@ -868,8 +847,8 @@ control "repo_web_commit_signoff_required" {
     )
 
   EOT
-  param "github_external_repo_names" {
+  param "github_external_repository_names" {
     description = "External repo names."
-    default     = var.github_external_repo_names
+    default     = var.github_external_repository_names
   }
 }

@@ -1,14 +1,15 @@
-// Benchmarks and controls for specific services should override the "service" tag
-locals {
-  github_common_tags = {
-    plugin   = "github"
-    service  = "GitHub"
-  }
-}
-
 mod "github_tracker" {
   # hub metadata
   title         = "GitHub Tracker"
-  description   = "Track GitHub open issues and PRs."
+  description   = "Track GitHub repository configurations and open issues and PRs."
   color         = "#191717"
+
+  /*
+   * TODO: Re-enable once new version is released
+  require {
+    plugin "github" {
+      version = "0.33.1"
+    }
+  }
+  */
 }

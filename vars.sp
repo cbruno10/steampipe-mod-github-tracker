@@ -10,7 +10,7 @@ locals {
   benchmark_all_mod_search_query    = "in:name steampipe-mod- is:public archived:false org:turbot org:ellisvalentiner org:ernw org:francois2metz org:ip2location org:kaggrwal org:marekjalovec org:mr-destructive org:solacelabs org:theapsgroup org:tomba-io"
   benchmark_turbot_mod_search_query = "in:name steampipe-mod- is:public archived:false org:turbot"
 
-  benchmark_all_plugin_search_query    = "in:name steampipe-plugin- is:public archived:false org:solacelabs org:theapsgroup org:tomba-io"
+  benchmark_all_plugin_search_query    = "in:name steampipe-plugin- is:public archived:false org:turbot org:ellisvalentiner org:ernw org:francois2metz org:ip2location org:kaggrwal org:marekjalovec org:mr-destructive org:solacelabs org:theapsgroup org:tomba-io"
   benchmark_turbot_plugin_search_query = "in:name steampipe-plugin- is:public archived:false org:turbot"
 
   dashboard_issue_search_query        = "org:turbot is:open is:public archived:false"

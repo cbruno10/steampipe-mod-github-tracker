@@ -36,9 +36,19 @@ variable "github_external_repository_names" {
 benchmark "repository_checks" {
   title = "GitHub Repository Checks"
   children = [
+    control.repository_auto_merge_allowed,
+    control.repository_branch_protection_enabled,
+    control.repository_forking_enabled,
+    control.repository_homepage_links_to_hub,
+    control.repository_is_public,
+    control.repository_license_is_apache,
+    control.repository_projects_disabled,
+    control.repository_squash_merge_allowed,
+    control.repository_vulnerability_alerts_enabled,
+    control.repository_web_commit_signoff_required,
+    control.repository_wiki_disabled,
     benchmark.repository_mod_checks,
     benchmark.repository_plugin_checks,
-    benchmark.repository_plugin_mod_checks,
   ]
 
   tags = merge(local.github_repository_checks_common_tags, {
@@ -73,6 +83,7 @@ benchmark "repository_plugin_checks" {
   })
 }
 
+/*
 benchmark "repository_plugin_mod_checks" {
   title = "GitHub Plugin and Mod Repository Checks"
   children = [
@@ -93,6 +104,7 @@ benchmark "repository_plugin_mod_checks" {
     type = "Benchmark"
   })
 }
+*/
 
 control "repository_plugin_description_is_set" {
   title = "Plugin repository has standard description"
@@ -127,6 +139,7 @@ control "repository_plugin_description_is_set" {
       full_name in (select jsonb_array_elements_text(to_jsonb($1::text[])))
     )
   EOT
+
   param "github_external_repository_names" {
     description = "External repo names."
     default     = var.github_external_repository_names

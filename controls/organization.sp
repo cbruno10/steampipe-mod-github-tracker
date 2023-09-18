@@ -21,7 +21,7 @@ benchmark "organization_checks" {
 }
 
 control "organization_two_factor_authentication_required" {
-  title       = "Two-factor authentication should be required for users in an organization"
+  title       = "Organization two-factor authentication should be required for users"
   description = "Two-factor authentication makes it harder for unauthorized actors to access repositories and organizations."
   tags        = local.github_organization_checks_common_tags
   sql = <<-EOT
@@ -118,7 +118,7 @@ control "organization_profile_pic_set" {
 }
 
 control "organization_domain_verified" {
-  title       = "Domain should be verified in an organization"
+  title       = "Organization domain should be verified"
   description = "Verifying your domain helps to confirm the organization's identity and send emails to users with verified emails."
   tags        = local.github_organization_checks_common_tags
   sql = <<-EOT

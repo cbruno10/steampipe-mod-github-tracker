@@ -64,7 +64,7 @@ query "github_issue_open_cli_total_days_count" {
     from
       github_search_issue
     where
-      query = 'org:turbot is:open is:public'
+      query = '${local.dashboard_issue_search_query}'
       and (repository_full_name ~ 'turbot/steampipe-(docs|fdw|plugin-sdk)' or repository_full_name = 'turbot/steampipe')
       and author ->> 'login' not in (
         select
@@ -92,7 +92,7 @@ query "github_issue_cli_external_count" {
     from
       github_search_issue
     where
-      query = 'org:turbot is:open is:public'
+      query = '${local.dashboard_issue_search_query}'
       and repository_full_name = 'turbot/steampipe'
       and author ->> 'login' not in (
         select
@@ -120,7 +120,7 @@ query "github_issue_sdk_external_count" {
     from
       github_search_issue
     where
-      query = 'org:turbot is:open is:public'
+      query = '${local.dashboard_issue_search_query}'
       and repository_full_name = 'turbot/steampipe-plugin-sdk'
       and author ->> 'login' not in (
         select
@@ -148,7 +148,7 @@ query "github_issue_fdw_external_count" {
     from
       github_search_issue
     where
-      query = 'org:turbot is:open is:public'
+      query = '${local.dashboard_issue_search_query}'
       and repository_full_name = 'turbot/steampipe-fdw'
       and author ->> 'login' not in (
         select
@@ -176,7 +176,7 @@ query "github_issue_docs_external_count" {
     from
       github_search_issue
     where
-      query = 'org:turbot is:open is:public'
+      query = '${local.dashboard_issue_search_query}'
       and repository_full_name = 'turbot/steampipe-docs'
       and author ->> 'login' not in (
         select
@@ -201,7 +201,7 @@ query "github_issue_cli_table" {
     from
       github_search_issue
     where
-      query = 'org:turbot is:open is:public'
+      query = '${local.dashboard_issue_search_query}'
       and (repository_full_name ~ 'turbot/steampipe-(docs|fdw|plugin-sdk)' or repository_full_name = 'turbot/steampipe')
       and author ->> 'login' not in (
         select

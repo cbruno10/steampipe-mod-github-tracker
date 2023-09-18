@@ -65,7 +65,7 @@ query "github_pull_request_aws_plugin_external_count" {
     from
       github_search_pull_request
     where
-      query = 'org:turbot is:open is:public -author:app/dependabot'
+      query = '${local.dashboard_pull_request_search_query}'
       and repository_full_name = 'turbot/steampipe-plugin-aws'
       and author ->> 'login' not in (
         select
@@ -93,7 +93,7 @@ query "github_pull_request_aws_compliance_mod_external_count" {
     from
       github_search_pull_request
     where
-      query = 'org:turbot is:open is:public -author:app/dependabot'
+      query = '${local.dashboard_pull_request_search_query}'
       and repository_full_name = 'turbot/steampipe-mod-aws-compliance'
       and author ->> 'login' not in (
         select
@@ -121,7 +121,7 @@ query "github_pull_request_open_plugin_mod_total_days_count" {
     from
       github_search_pull_request
     where
-      query = 'org:turbot is:open is:public -author:app/dependabot'
+      query = '${local.dashboard_pull_request_search_query}'
       and repository_full_name ~ 'turbot/steampipe-(plugin|mod)'
       and repository_full_name <> 'turbot/steampipe-plugin-sdk'
       and author ->> 'login' not in (
@@ -150,7 +150,7 @@ query "github_pull_request_plugin_external_count" {
     from
       github_search_pull_request
     where
-      query = 'org:turbot is:open is:public -author:app/dependabot'
+      query = '${local.dashboard_pull_request_search_query}'
       and repository_full_name ~ 'turbot/steampipe-plugin'
       and repository_full_name <> 'turbot/steampipe-plugin-sdk'
       and author ->> 'login' not in (
@@ -179,7 +179,7 @@ query "github_pull_request_mod_external_count" {
     from
       github_search_pull_request
     where
-      query = 'org:turbot is:open is:public -author:app/dependabot'
+      query = '${local.dashboard_pull_request_search_query}'
       and repository_full_name ~ 'turbot/steampipe-mod'
       and author ->> 'login' not in (
         select
@@ -204,7 +204,7 @@ query "github_pull_request_open_plugin_mod_table" {
     from
       github_search_pull_request
     where
-      query = 'org:turbot is:open is:public -author:app/dependabot'
+      query = '${local.dashboard_pull_request_search_query}'
       and repository_full_name ~ 'turbot/steampipe-(plugin|mod)'
       and repository_full_name <> 'turbot/steampipe-plugin-sdk'
       and author ->> 'login' not in (

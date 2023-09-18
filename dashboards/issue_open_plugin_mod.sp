@@ -65,7 +65,7 @@ query "github_issue_aws_plugin_external_count" {
     from
       github_search_issue
     where
-      query = 'org:turbot is:open is:public'
+      query = '${local.dashboard_issue_search_query}'
       and repository_full_name = 'turbot/steampipe-plugin-aws'
       and author ->> 'login' not in (
         select
@@ -93,7 +93,7 @@ query "github_issue_aws_compliance_mod_external_count" {
     from
       github_search_issue
     where
-      query = 'org:turbot is:open is:public'
+      query = '${local.dashboard_issue_search_query}'
       and repository_full_name = 'turbot/steampipe-mod-aws-compliance'
       and author ->> 'login' not in (
         select
@@ -121,7 +121,7 @@ query "github_issue_open_plugin_mod_total_days_count" {
     from
       github_search_issue
     where
-      query = 'org:turbot is:open is:public'
+      query = '${local.dashboard_issue_search_query}'
       and repository_full_name ~ 'turbot/steampipe-(plugin|mod)'
       and repository_full_name <> 'turbot/steampipe-plugin-sdk'
       and author ->> 'login' not in (
@@ -150,7 +150,7 @@ query "github_issue_plugin_external_count" {
     from
       github_search_issue
     where
-      query = 'org:turbot is:open is:public'
+      query = '${local.dashboard_issue_search_query}'
       and repository_full_name ~ 'turbot/steampipe-plugin'
       and repository_full_name <> 'turbot/steampipe-plugin-sdk'
       and author ->> 'login' not in (
@@ -179,7 +179,7 @@ query "github_issue_mod_external_count" {
     from
       github_search_issue
     where
-      query = 'org:turbot is:open is:public'
+      query = '${local.dashboard_issue_search_query}'
       and repository_full_name ~ 'turbot/steampipe-mod'
       and author ->> 'login' not in (
         select
@@ -204,7 +204,7 @@ query "github_issue_open_plugin_mod_table" {
     from
       github_search_issue
     where
-      query = 'org:turbot is:open is:public'
+      query = '${local.dashboard_issue_search_query}'
       and repository_full_name ~ 'turbot/steampipe-(plugin|mod)'
       and repository_full_name <> 'turbot/steampipe-plugin-sdk'
       and author ->> 'login' not in (

@@ -64,7 +64,7 @@ query "github_issue_open_cli_total_days_count" {
     from
       github_search_issue
     where
-      query = 'org:turbot is:open is:public'
+      query = ${local.dashboard_query}
       and (repository_full_name ~ 'turbot/steampipe-(docs|fdw|plugin-sdk)' or repository_full_name = 'turbot/steampipe')
       and author ->> 'login' not in (
         select

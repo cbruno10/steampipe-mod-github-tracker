@@ -287,7 +287,7 @@ control "repository_plugin_vulnerability_alerts_enabled" {
         else 'alarm'
       end as status,
       name_with_owner || ' vulnerability alerts ' || case
-        when has_vulnerability_alerts_enabled then 'enabled.'
+        when has_vulnerability_alerts_enabled then 'enabled'
         else 'disabled'
       end || '.' as reason,
       name_with_owner
@@ -311,7 +311,7 @@ control "repository_plugin_delete_branch_on_merge_enabled" {
         else 'alarm'
       end as status,
       name_with_owner || ' delete branch on merge ' || case
-        when delete_branch_on_merge then 'enabled.'
+        when delete_branch_on_merge then 'enabled'
         else 'disabled'
       end || '.' as reason,
       name_with_owner
@@ -335,7 +335,7 @@ control "repository_mod_delete_branch_on_merge_enabled" {
         else 'alarm'
       end as status,
       name_with_owner || ' delete branch on merge ' || case
-        when delete_branch_on_merge then 'enabled.'
+        when delete_branch_on_merge then 'enabled'
         else 'disabled'
       end || '.' as reason,
       name_with_owner

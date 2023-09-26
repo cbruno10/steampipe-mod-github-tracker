@@ -117,7 +117,7 @@ control "repository_plugin_description_is_set" {
     select
       url as resource,
       case
-        when description is not null then 'ok'
+        when description != '' then 'ok'
         else 'alarm'
       end as status,
       name_with_owner || case

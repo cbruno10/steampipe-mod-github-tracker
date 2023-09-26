@@ -52,10 +52,8 @@ benchmark "repository_checks" {
 benchmark "repository_mod_checks" {
   title = "GitHub Mod Repository Checks"
   children = [
-    # TODO: Re-add control once v3 hydrate data works
-    #control.repository_mod_has_mandatory_topics,
-    # TODO: Re-add control after testing API limits
-    #control.repository_mod_uses_monotonic_versioning,
+    control.repository_mod_has_mandatory_topics,
+    control.repository_mod_uses_monotonic_versioning,
     control.repository_mod_default_branch_protection_enabled,
     control.repository_mod_delete_branch_on_merge_enabled,
     control.repository_mod_homepage_links_to_hub,
@@ -75,10 +73,8 @@ benchmark "repository_mod_checks" {
 benchmark "repository_plugin_checks" {
   title = "GitHub Plugin Repository Checks"
   children = [
-    # TODO: Re-add control once v3 hydrate data works
-    #control.repository_plugin_has_mandatory_topics,
-    # TODO: Re-add control after testing API limits
-    #control.repository_plugin_uses_semantic_versioning,
+    control.repository_plugin_has_mandatory_topics,
+    control.repository_plugin_uses_semantic_versioning,
     control.repository_plugin_default_branch_protection_enabled,
     control.repository_plugin_delete_branch_on_merge_enabled,
     control.repository_plugin_description_is_set,
@@ -102,7 +98,6 @@ benchmark "repository_steampipe_cli_fdw_sdk_docs_checks" {
     control.repository_steampipe_cli_fdw_sdk_docs_default_branch_protection_enabled,
     control.repository_steampipe_cli_fdw_sdk_docs_delete_branch_on_merge_enabled,
     control.repository_steampipe_cli_fdw_sdk_docs_description_is_set,
-    control.repository_steampipe_cli_fdw_sdk_docs_homepage_links_to_hub,
     control.repository_steampipe_cli_fdw_sdk_docs_language_is_go,
     control.repository_steampipe_cli_fdw_sdk_docs_license_is_apache,
     control.repository_steampipe_cli_fdw_sdk_docs_projects_disabled,
@@ -122,7 +117,7 @@ control "repository_plugin_description_is_set" {
     select
       url as resource,
       case
-        when description like 'Use SQL to instantly query %. Open source CLI. No DB required.' then 'ok'
+        when description is not null then 'ok'
         else 'alarm'
       end as status,
       name_with_owner || case
@@ -782,7 +777,7 @@ control "repository_steampipe_cli_fdw_sdk_docs_uses_semantic_versioning" {
 }
 
 control "repository_steampipe_cli_fdw_sdk_docs_license_is_apache" {
-  title = "Steampipe CLI, FDW, SDK, Docs repositories use Apache 2.0 license"
+  title = "Steampipe SDK repository uses Apache 2.0 license"
   sql = <<-EOT
     select
       url as resource,
@@ -795,7 +790,7 @@ control "repository_steampipe_cli_fdw_sdk_docs_license_is_apache" {
     from
       github_search_repository
     where
-      query ='repo:turbot/steampipe repo:turbot/steampipe-plugin-sdk repo:turbot/steampipe-docs repo:turbot/steampipe-postgres-fdw is:public archived:false'
+      query ='repo:turbot/steampipe-plugin-sdk is:public archived:false'
     order by
       name_with_owner
   EOT

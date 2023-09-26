@@ -134,7 +134,7 @@ control "repository_plugin_has_mandatory_topics" {
         github_search_repository,
         input
       where
-        query ='${local.benchmark_all_plugin_search_query}'
+        query = '${local.benchmark_all_plugin_search_query}'
     )
     select
       url as resource,
@@ -170,7 +170,7 @@ control "repository_mod_has_mandatory_topics" {
         github_search_repository,
         input
       where
-        query ='${local.benchmark_all_mod_search_query}'
+        query = '${local.benchmark_all_mod_search_query}'
     )
     select
       url as resource,
@@ -200,7 +200,7 @@ control "repository_plugin_uses_semantic_versioning" {
       from
         github_search_repository
       where
-        query ='${local.benchmark_all_plugin_search_query}'
+        query = '${local.benchmark_all_plugin_search_query}'
     )
     select
       r.url || '@' || t.name as resource,
@@ -233,7 +233,7 @@ control "repository_mod_uses_monotonic_versioning" {
       from
         github_search_repository
       where
-        query ='${local.benchmark_all_mod_search_query}'
+        query = '${local.benchmark_all_mod_search_query}'
     )
     select
       r.url || '@' || t.name as resource,
@@ -270,7 +270,7 @@ control "repository_plugin_license_is_apache" {
     from
       github_search_repository
     where
-      query ='${local.benchmark_all_plugin_search_query}'
+      query = '${local.benchmark_all_plugin_search_query}'
     order by
       name_with_owner
   EOT
@@ -294,7 +294,7 @@ control "repository_plugin_vulnerability_alerts_enabled" {
     from
       github_search_repository
     where
-      query ='${local.benchmark_turbot_plugin_search_query}'
+      query = '${local.benchmark_turbot_plugin_search_query}'
     order by
       name_with_owner
   EOT
@@ -389,7 +389,7 @@ control "repository_plugin_homepage_links_to_hub" {
     from
       github_search_repository
     where
-      query ='${local.benchmark_all_plugin_search_query}'
+      query = '${local.benchmark_all_plugin_search_query}'
     order by
       name_with_owner
   EOT
@@ -412,7 +412,7 @@ control "repository_plugin_wiki_disabled" {
     from
       github_search_repository
     where
-      query ='${local.benchmark_all_plugin_search_query}'
+      query = '${local.benchmark_turbot_plugin_search_query}'
     order by
       name_with_owner
   EOT
@@ -435,7 +435,7 @@ control "repository_plugin_projects_disabled" {
     from
       github_search_repository
     where
-      query ='${local.benchmark_all_plugin_search_query}'
+      query = '${local.benchmark_turbot_plugin_search_query}'
     order by
       name_with_owner
   EOT
@@ -455,7 +455,7 @@ control "repository_plugin_language_is_go" {
     from
       github_search_repository
     where
-      query ='${local.benchmark_all_plugin_search_query}'
+      query = '${local.benchmark_all_plugin_search_query}'
     order by
       name_with_owner
   EOT
@@ -525,7 +525,7 @@ control "repository_mod_wiki_disabled" {
     from
       github_search_repository
     where
-      query = '${local.benchmark_all_mod_search_query}'
+      query = '${local.benchmark_turbot_mod_search_query}'
     order by
       name_with_owner
   EOT
@@ -548,7 +548,7 @@ control "repository_mod_projects_disabled" {
     from
       github_search_repository
     where
-      query = '${local.benchmark_all_mod_search_query}'
+      query = '${local.benchmark_turbot_mod_search_query}'
     order by
       name_with_owner
   EOT
@@ -568,7 +568,7 @@ control "repository_mod_language_is_hcl" {
     from
       github_search_repository
     where
-      query ='${local.benchmark_all_mod_search_query}'
+      query = '${local.benchmark_all_mod_search_query}'
     order by
       name_with_owner
   EOT
@@ -612,7 +612,7 @@ control "repository_mod_license_is_apache" {
     from
       github_search_repository
     where
-      query ='${local.benchmark_all_mod_search_query}'
+      query = '${local.benchmark_all_mod_search_query}'
     order by
       name_with_owner
   EOT
@@ -636,7 +636,7 @@ control "repository_mod_vulnerability_alerts_enabled" {
     from
       github_search_repository
     where
-      query ='${local.benchmark_turbot_mod_search_query}'
+      query = '${local.benchmark_turbot_mod_search_query}'
     order by
       name_with_owner
   EOT

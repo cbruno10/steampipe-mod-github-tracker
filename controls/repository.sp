@@ -41,6 +41,7 @@ benchmark "repository_checks" {
   children = [
     benchmark.repository_mod_checks,
     benchmark.repository_plugin_checks,
+    benchmark.repository_steampipe_cli_fdw_sdk_docs_checks
   ]
 
   tags = merge(local.github_repository_checks_common_tags, {
@@ -88,6 +89,26 @@ benchmark "repository_plugin_checks" {
     control.repository_plugin_squash_merge_allowed,
     control.repository_plugin_vulnerability_alerts_enabled,
     control.repository_plugin_wiki_disabled,
+  ]
+
+  tags = merge(local.github_repository_checks_common_tags, {
+    type = "Benchmark"
+  })
+}
+
+benchmark "repository_steampipe_cli_fdw_sdk_docs_checks" {
+  title = "GitHub Steampipe CLI, FDW, SDK, Docs Repository Checks"
+  children = [
+    control.repository_steampipe_cli_fdw_sdk_docs_default_branch_protection_enabled,
+    control.repository_steampipe_cli_fdw_sdk_docs_delete_branch_on_merge_enabled,
+    control.repository_steampipe_cli_fdw_sdk_docs_description_is_set,
+    control.repository_steampipe_cli_fdw_sdk_docs_homepage_links_to_hub,
+    control.repository_steampipe_cli_fdw_sdk_docs_language_is_go,
+    control.repository_steampipe_cli_fdw_sdk_docs_license_is_apache,
+    control.repository_steampipe_cli_fdw_sdk_docs_projects_disabled,
+    control.repository_steampipe_cli_fdw_sdk_docs_squash_merge_allowed,
+    control.repository_steampipe_cli_fdw_sdk_docs_vulnerability_alerts_enabled,
+    control.repository_steampipe_cli_fdw_sdk_docs_wiki_disabled,
   ]
 
   tags = merge(local.github_repository_checks_common_tags, {
@@ -661,6 +682,305 @@ control "repository_plugin_squash_merge_allowed" {
       github_search_repository
     where
       query = '${local.benchmark_turbot_plugin_search_query}'
+    order by
+      name_with_owner
+  EOT
+}
+
+// Other checks
+
+control "repository_steampipe_cli_fdw_sdk_docs_description_is_set" {
+  title = "Plugin repository has standard description"
+  sql = <<-EOT
+    select
+      url as resource,
+      case
+        when description is not null then 'ok'
+        else 'alarm'
+      end as status,
+      name_with_owner || case
+        when description != '' then ': ' || description
+        else ' description not set'
+      || '.' end as reason,
+      name_with_owner
+    from
+      github_search_repository
+    where
+      query ='repo:turbot/steampipe repo:turbot/steampipe-plugin-sdk repo:turbot/steampipe-docs repo:turbot/steampipe-postgres-fdw is:public archived:false'
+    order by
+      name_with_owner
+  EOT
+}
+
+control "repository_steampipe_cli_fdw_sdk_docs_has_mandatory_topics" {
+  title = "Plugin repository has mandatory topics"
+  sql = <<-EOT
+    with input as (
+      select array['sql', 'steampipe', 'steampipe-plugin', 'postgresql', 'postgresql-fdw'] as mandatory_topics
+    ),
+    analysis as (
+      select
+        url,
+        topics ?& (input.mandatory_topics) as has_mandatory_topics,
+        to_jsonb(input.mandatory_topics) - array(select jsonb_array_elements_text(topics)) as missing_topics,
+        name_with_owner
+      from
+        github_search_repository,
+        input
+      where
+      query ='repo:turbot/steampipe repo:turbot/steampipe-plugin-sdk repo:turbot/steampipe-docs repo:turbot/steampipe-postgres-fdw is:public archived:false'
+    )
+    select
+      url as resource,
+      case
+        when has_mandatory_topics then 'ok'
+        else 'alarm'
+      end as status,
+      case
+        when has_mandatory_topics then name_with_owner || ' has all mandatory topics.'
+        else name_with_owner || ' is missing topics ' || missing_topics || '.'
+      end as reason,
+      name_with_owner
+    from
+      analysis
+    order by
+      name_with_owner
+  EOT
+}
+
+control "repository_steampipe_cli_fdw_sdk_docs_uses_semantic_versioning" {
+  title = "Plugin repository uses semantic versioning"
+  sql = <<-EOT
+    with repos as materialized (
+      select
+        url,
+        name_with_owner
+      from
+        github_search_repository
+      where
+        query ='repo:turbot/steampipe repo:turbot/steampipe-plugin-sdk repo:turbot/steampipe-docs repo:turbot/steampipe-postgres-fdw is:public archived:false'
+    )
+    select
+      r.url || '@' || t.name as resource,
+      case
+        when t.name ~ '^v[0-9]+\.[0-9]+\.[0-9]+$' then 'ok'
+        else 'alarm'
+      end as status,
+      r.name_with_owner || '@' || t.name as reason,
+      r.name_with_owner
+    from
+      repos as r,
+      github_tag as t
+    where
+      r.name_with_owner = t.repository_full_name
+      -- Exclude dev versions, e.g., v0.1.0+preview
+      and t.name !~ '^v[0-9]+\.[0-9]+\.[0-9]+\+.*$'
+    order by
+      name_with_owner,
+      tagger_date
+  EOT
+}
+
+control "repository_steampipe_cli_fdw_sdk_docs_license_is_apache" {
+  title = "Plugin repository license is Apache 2.0"
+  sql = <<-EOT
+    select
+      url as resource,
+      case
+        when license_info ->> 'spdx_id' = 'Apache-2.0' then 'ok'
+        else 'alarm'
+      end as status,
+      name_with_owner || ' license is ' || coalesce(((license_info -> 'spdx_id')::text), 'not set') || '.' as reason,
+      name_with_owner
+    from
+      github_search_repository
+    where
+      query ='repo:turbot/steampipe repo:turbot/steampipe-plugin-sdk repo:turbot/steampipe-docs repo:turbot/steampipe-postgres-fdw is:public archived:false'
+    order by
+      name_with_owner
+  EOT
+}
+
+# This control is mostly reliable for Turbot repos
+control "repository_steampipe_cli_fdw_sdk_docs_vulnerability_alerts_enabled" {
+  title = "Plugin repository vulnerability alerts are enabled"
+  sql = <<-EOT
+    select
+      url as resource,
+      case
+        when has_vulnerability_alerts_enabled then 'ok'
+        else 'alarm'
+      end as status,
+      name_with_owner || ' vulnerability alerts ' || case
+        when has_vulnerability_alerts_enabled then 'enabled'
+        else 'disabled'
+      end || '.' as reason,
+      name_with_owner
+    from
+      github_search_repository
+    where
+      query ='repo:turbot/steampipe repo:turbot/steampipe-plugin-sdk repo:turbot/steampipe-docs repo:turbot/steampipe-postgres-fdw is:public archived:false'
+    order by
+      name_with_owner
+  EOT
+}
+
+# This control is mostly reliable for Turbot repos
+control "repository_steampipe_cli_fdw_sdk_docs_delete_branch_on_merge_enabled" {
+  title = "Plugin repository delete branch on merge enabled"
+  sql = <<-EOT
+    select
+      url as resource,
+      case
+        when delete_branch_on_merge then 'ok'
+        else 'alarm'
+      end as status,
+      name_with_owner || ' delete branch on merge ' || case
+        when delete_branch_on_merge then 'enabled'
+        else 'disabled'
+      end || '.' as reason,
+      name_with_owner
+    from
+      github_search_repository
+    where
+      query ='repo:turbot/steampipe repo:turbot/steampipe-plugin-sdk repo:turbot/steampipe-docs repo:turbot/steampipe-postgres-fdw is:public archived:false'
+    order by
+      name_with_owner
+  EOT
+}
+
+# This control is only reliable for Turbot repos
+control "repository_steampipe_cli_fdw_sdk_docs_default_branch_protection_enabled" {
+  title = "Plugin repository default branch protection is enabled"
+  sql = <<-EOT
+    select
+      url as resource,
+      case
+        when default_branch_ref -> 'branch_protection_rule' is not null then 'ok'
+        else 'alarm'
+      end as status,
+      case
+        when default_branch_ref -> 'branch_protection_rule' is not null then name_with_owner || ' default branch protection enabled.'
+        else name_with_owner || ' default branch protection disabled.'
+      end as reason,
+      name_with_owner
+    from
+      github_search_repository
+    where
+      query ='repo:turbot/steampipe repo:turbot/steampipe-plugin-sdk repo:turbot/steampipe-docs repo:turbot/steampipe-postgres-fdw is:public archived:false'
+    order by
+      name_with_owner
+  EOT
+}
+
+control "repository_steampipe_cli_fdw_sdk_docs_homepage_links_to_hub" {
+  title = "Plugin repository homepage links to the Hub"
+  sql = <<-EOT
+    select
+      url as resource,
+      case
+        when homepage_url like 'https://hub.%' then 'ok'
+        else 'alarm'
+      end as status,
+      name_with_owner || ' homepage is ' || case
+        when homepage_url = '' then 'not set'
+        else homepage_url
+      end || '.' as reason,
+      name_with_owner
+    from
+      github_search_repository
+    where
+      query ='repo:turbot/steampipe repo:turbot/steampipe-plugin-sdk repo:turbot/steampipe-docs repo:turbot/steampipe-postgres-fdw is:public archived:false'
+    order by
+      name_with_owner
+  EOT
+}
+
+control "repository_steampipe_cli_fdw_sdk_docs_wiki_disabled" {
+  title = "Plugin repository wiki is disabled"
+  sql = <<-EOT
+    select
+      url as resource,
+      case
+        when has_wiki_enabled then 'alarm'
+        else 'ok'
+      end as status,
+      name_with_owner || ' wiki is ' || case
+        when has_wiki_enabled then 'enabled'
+        else 'disabled'
+      end || '.' as reason,
+      name_with_owner
+    from
+      github_search_repository
+    where
+      query ='repo:turbot/steampipe repo:turbot/steampipe-plugin-sdk repo:turbot/steampipe-docs repo:turbot/steampipe-postgres-fdw is:public archived:false'
+    order by
+      name_with_owner
+  EOT
+}
+
+control "repository_steampipe_cli_fdw_sdk_docs_projects_disabled" {
+  title = "Plugin repository projects are disabled"
+  sql = <<-EOT
+    select
+      url as resource,
+      case
+        when has_projects_enabled then 'alarm'
+        else 'ok'
+      end as status,
+      name_with_owner || ' projects are ' || case
+        when has_projects_enabled then 'enabled'
+        else 'disabled'
+      end || '.' as reason,
+      name_with_owner
+    from
+      github_search_repository
+    where
+      query ='repo:turbot/steampipe repo:turbot/steampipe-plugin-sdk repo:turbot/steampipe-docs repo:turbot/steampipe-postgres-fdw is:public archived:false'
+    order by
+      name_with_owner
+  EOT
+}
+
+control "repository_steampipe_cli_fdw_sdk_docs_language_is_go" {
+  title = "Plugin repository language is Go"
+  sql = <<-EOT
+    select
+      url as resource,
+      case
+        when primary_language ->> 'name' = 'Go' then 'ok'
+        else 'alarm'
+      end as status,
+      name_with_owner || ' language is ' || coalesce(((primary_language ->> 'name')::text), 'not set') || '.' as reason,
+      name_with_owner
+    from
+      github_search_repository
+    where
+      query ='repo:turbot/steampipe repo:turbot/steampipe-plugin-sdk repo:turbot/steampipe-docs repo:turbot/steampipe-postgres-fdw is:public archived:false'
+    order by
+      name_with_owner
+  EOT
+}
+
+# This control is mostly reliable for Turbot repos
+control "repository_steampipe_cli_fdw_sdk_docs_squash_merge_allowed" {
+  title = "Plugin repository allows squash merging"
+  sql = <<-EOT
+    select
+      url as resource,
+      case
+        when not merge_commit_allowed and not rebase_merge_allowed and squash_merge_allowed then 'ok'
+        else 'alarm'
+      end as status,
+      name_with_owner || case
+        when not merge_commit_allowed and not rebase_merge_allowed and squash_merge_allowed then ' only allows'
+        else ' does not only allow'
+      end || ' squash merging.' as reason,
+      name_with_owner
+    from
+      github_search_repository
+    where
+      query ='repo:turbot/steampipe repo:turbot/steampipe-plugin-sdk repo:turbot/steampipe-docs repo:turbot/steampipe-postgres-fdw is:public archived:false'
     order by
       name_with_owner
   EOT

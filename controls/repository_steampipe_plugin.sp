@@ -210,7 +210,7 @@ control "repository_steampipe_plugin_wiki_disabled" {
     from
       github_search_repository
     where
-      query ='${local.benchmark_all_plugin_search_query}'
+      query = '${local.benchmark_turbot_plugin_search_query}'
     order by
       name_with_owner
   EOT
@@ -233,7 +233,7 @@ control "repository_steampipe_plugin_projects_disabled" {
     from
       github_search_repository
     where
-      query ='${local.benchmark_all_plugin_search_query}'
+      query = '${local.benchmark_turbot_plugin_search_query}'
     order by
       name_with_owner
   EOT

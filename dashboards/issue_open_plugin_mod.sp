@@ -2,7 +2,7 @@ dashboard "github_open_plugin_mod_issue_report" {
 
   title = "GitHub Open Plugin and Mod Issues"
 
-  tags = merge(local.github_issue_external_common_tags, {
+  tags = merge(local.github_issue_common_tags, {
     type = "Report"
   })
 

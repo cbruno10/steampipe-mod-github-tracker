@@ -41,7 +41,7 @@ benchmark "repository_checks" {
   children = [
     benchmark.repository_mod_checks,
     benchmark.repository_plugin_checks,
-    benchmark.repository_steampipe_cli_fdw_sdk_docs_checks
+    benchmark.repository_steampipe_core_checks
   ]
 
   tags = merge(local.github_repository_checks_common_tags, {
@@ -53,7 +53,7 @@ benchmark "repository_mod_checks" {
   title = "GitHub Mod Repository Checks"
   children = [
     control.repository_mod_has_mandatory_topics,
-    control.repository_mod_uses_monotonic_versioning,
+    # control.repository_mod_uses_monotonic_versioning,
     control.repository_mod_default_branch_protection_enabled,
     control.repository_mod_delete_branch_on_merge_enabled,
     control.repository_mod_homepage_links_to_hub,
@@ -74,7 +74,7 @@ benchmark "repository_plugin_checks" {
   title = "GitHub Plugin Repository Checks"
   children = [
     control.repository_plugin_has_mandatory_topics,
-    control.repository_plugin_uses_semantic_versioning,
+    # control.repository_plugin_uses_semantic_versioning,
     control.repository_plugin_default_branch_protection_enabled,
     control.repository_plugin_delete_branch_on_merge_enabled,
     control.repository_plugin_description_is_set,
@@ -92,18 +92,18 @@ benchmark "repository_plugin_checks" {
   })
 }
 
-benchmark "repository_steampipe_cli_fdw_sdk_docs_checks" {
-  title = "GitHub Steampipe CLI, FDW, SDK, Docs Repository Checks"
+benchmark "repository_steampipe_core_checks" {
+  title = "GitHub Steampipe core Repository Checks"
   children = [
-    control.repository_steampipe_cli_fdw_sdk_docs_default_branch_protection_enabled,
-    control.repository_steampipe_cli_fdw_sdk_docs_delete_branch_on_merge_enabled,
-    control.repository_steampipe_cli_fdw_sdk_docs_description_is_set,
-    control.repository_steampipe_cli_fdw_sdk_docs_language_is_go,
-    control.repository_steampipe_cli_fdw_sdk_docs_license_is_apache,
-    control.repository_steampipe_cli_fdw_sdk_docs_projects_disabled,
-    control.repository_steampipe_cli_fdw_sdk_docs_squash_merge_allowed,
-    control.repository_steampipe_cli_fdw_sdk_docs_vulnerability_alerts_enabled,
-    control.repository_steampipe_cli_fdw_sdk_docs_wiki_disabled,
+    control.repository_steampipe_core_default_branch_protection_enabled,
+    control.repository_steampipe_core_delete_branch_on_merge_enabled,
+    control.repository_steampipe_core_description_is_set,
+    control.repository_steampipe_core_language_is_go,
+    control.repository_steampipe_core_license_is_apache,
+    control.repository_steampipe_core_projects_disabled,
+    control.repository_steampipe_core_squash_merge_allowed,
+    control.repository_steampipe_core_vulnerability_alerts_enabled,
+    control.repository_steampipe_core_wiki_disabled,
   ]
 
   tags = merge(local.github_repository_checks_common_tags, {
@@ -682,10 +682,10 @@ control "repository_plugin_squash_merge_allowed" {
   EOT
 }
 
-// Other checks
+// Core repo checks
 
-control "repository_steampipe_cli_fdw_sdk_docs_description_is_set" {
-  title = "Steampipe CLI, FDW, SDK, Docs repositories have a standard description"
+control "repository_steampipe_core_description_is_set" {
+  title = "Steampipe core repositories have a standard description"
   sql = <<-EOT
     select
       url as resource,
@@ -707,8 +707,8 @@ control "repository_steampipe_cli_fdw_sdk_docs_description_is_set" {
   EOT
 }
 
-control "repository_steampipe_cli_fdw_sdk_docs_has_mandatory_topics" {
-  title = "Steampipe CLI, FDW, SDK, Docs repositories have mandatory topics"
+control "repository_steampipe_core_has_mandatory_topics" {
+  title = "Steampipe core repositories have mandatory topics"
   sql = <<-EOT
     with input as (
       select array['sql', 'steampipe', 'steampipe-plugin', 'postgresql', 'postgresql-fdw'] as mandatory_topics
@@ -743,8 +743,8 @@ control "repository_steampipe_cli_fdw_sdk_docs_has_mandatory_topics" {
   EOT
 }
 
-control "repository_steampipe_cli_fdw_sdk_docs_uses_semantic_versioning" {
-  title = "Steampipe CLI, FDW, SDK, Docs repositories use semantic versioning"
+control "repository_steampipe_core_uses_semantic_versioning" {
+  title = "Steampipe core repositories use semantic versioning"
   sql = <<-EOT
     with repos as materialized (
       select
@@ -776,7 +776,7 @@ control "repository_steampipe_cli_fdw_sdk_docs_uses_semantic_versioning" {
   EOT
 }
 
-control "repository_steampipe_cli_fdw_sdk_docs_license_is_apache" {
+control "repository_steampipe_core_license_is_apache" {
   title = "Steampipe SDK repository uses Apache 2.0 license"
   sql = <<-EOT
     select
@@ -797,8 +797,8 @@ control "repository_steampipe_cli_fdw_sdk_docs_license_is_apache" {
 }
 
 # This control is mostly reliable for Turbot repos
-control "repository_steampipe_cli_fdw_sdk_docs_vulnerability_alerts_enabled" {
-  title = "Steampipe CLI, FDW, SDK, Docs repositories have vulnerability alerts enabled"
+control "repository_steampipe_core_vulnerability_alerts_enabled" {
+  title = "Steampipe core repositories have vulnerability alerts enabled"
   sql = <<-EOT
     select
       url as resource,
@@ -821,8 +821,8 @@ control "repository_steampipe_cli_fdw_sdk_docs_vulnerability_alerts_enabled" {
 }
 
 # This control is mostly reliable for Turbot repos
-control "repository_steampipe_cli_fdw_sdk_docs_delete_branch_on_merge_enabled" {
-  title = "Steampipe CLI, FDW, SDK, Docs repositories have delete branch on merge enabled"
+control "repository_steampipe_core_delete_branch_on_merge_enabled" {
+  title = "Steampipe core repositories have delete branch on merge enabled"
   sql = <<-EOT
     select
       url as resource,
@@ -845,8 +845,8 @@ control "repository_steampipe_cli_fdw_sdk_docs_delete_branch_on_merge_enabled" {
 }
 
 # This control is only reliable for Turbot repos
-control "repository_steampipe_cli_fdw_sdk_docs_default_branch_protection_enabled" {
-  title = "Steampipe CLI, FDW, SDK, Docs repositories have default branch protection enabled"
+control "repository_steampipe_core_default_branch_protection_enabled" {
+  title = "Steampipe core repositories have default branch protection enabled"
   sql = <<-EOT
     select
       url as resource,
@@ -868,8 +868,8 @@ control "repository_steampipe_cli_fdw_sdk_docs_default_branch_protection_enabled
   EOT
 }
 
-control "repository_steampipe_cli_fdw_sdk_docs_wiki_disabled" {
-  title = "Steampipe CLI, FDW, SDK, Docs repositories have wiki disabled"
+control "repository_steampipe_core_wiki_disabled" {
+  title = "Steampipe core repositories have wiki disabled"
   sql = <<-EOT
     select
       url as resource,
@@ -891,8 +891,8 @@ control "repository_steampipe_cli_fdw_sdk_docs_wiki_disabled" {
   EOT
 }
 
-control "repository_steampipe_cli_fdw_sdk_docs_projects_disabled" {
-  title = "Steampipe CLI, FDW, SDK, Docs repositories have projects disabled"
+control "repository_steampipe_core_projects_disabled" {
+  title = "Steampipe core repositories have projects disabled"
   sql = <<-EOT
     select
       url as resource,
@@ -914,8 +914,8 @@ control "repository_steampipe_cli_fdw_sdk_docs_projects_disabled" {
   EOT
 }
 
-control "repository_steampipe_cli_fdw_sdk_docs_language_is_go" {
-  title = "Steampipe CLI, FDW, SDK, Docs repositories have language set to Go"
+control "repository_steampipe_core_language_is_go" {
+  title = "Steampipe core repositories have language set to Go"
   sql = <<-EOT
     select
       url as resource,
@@ -935,8 +935,8 @@ control "repository_steampipe_cli_fdw_sdk_docs_language_is_go" {
 }
 
 # This control is mostly reliable for Turbot repos
-control "repository_steampipe_cli_fdw_sdk_docs_squash_merge_allowed" {
-  title = "Steampipe CLI, FDW, SDK, Docs repositories allow squash merging"
+control "repository_steampipe_core_squash_merge_allowed" {
+  title = "Steampipe core repositories allow squash merging"
   sql = <<-EOT
     select
       url as resource,

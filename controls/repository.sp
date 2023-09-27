@@ -117,7 +117,7 @@ control "repository_plugin_description_is_set" {
     select
       url as resource,
       case
-        when description != '' then 'ok'
+        when description like 'Use SQL to instantly query %. Open source CLI. No DB required.' then 'ok'
         else 'alarm'
       end as status,
       name_with_owner || case
@@ -128,7 +128,7 @@ control "repository_plugin_description_is_set" {
     from
       github_search_repository
     where
-      query = '${local.benchmark_all_plugin_search_query}'
+      query = '${local.benchmark_turbot_plugin_search_query}'
     order by
       name_with_owner
   EOT
@@ -701,7 +701,7 @@ control "repository_steampipe_core_description_is_set" {
     from
       github_search_repository
     where
-      query ='repo:turbot/steampipe repo:turbot/steampipe-plugin-sdk repo:turbot/steampipe-docs repo:turbot/steampipe-postgres-fdw is:public archived:false'
+      query ='${local.benchmark_turbot_core_search_query}'
     order by
       name_with_owner
   EOT
@@ -723,7 +723,7 @@ control "repository_steampipe_core_has_mandatory_topics" {
         github_search_repository,
         input
       where
-      query ='repo:turbot/steampipe repo:turbot/steampipe-plugin-sdk repo:turbot/steampipe-docs repo:turbot/steampipe-postgres-fdw is:public archived:false'
+      query ='${local.benchmark_turbot_core_search_query}'
     )
     select
       url as resource,
@@ -753,7 +753,7 @@ control "repository_steampipe_core_uses_semantic_versioning" {
       from
         github_search_repository
       where
-        query ='repo:turbot/steampipe repo:turbot/steampipe-plugin-sdk repo:turbot/steampipe-docs repo:turbot/steampipe-postgres-fdw is:public archived:false'
+        query ='${local.benchmark_turbot_core_search_query}'
     )
     select
       r.url || '@' || t.name as resource,
@@ -814,7 +814,7 @@ control "repository_steampipe_core_vulnerability_alerts_enabled" {
     from
       github_search_repository
     where
-      query ='repo:turbot/steampipe repo:turbot/steampipe-plugin-sdk repo:turbot/steampipe-docs repo:turbot/steampipe-postgres-fdw is:public archived:false'
+      query ='${local.benchmark_turbot_core_search_query}'
     order by
       name_with_owner
   EOT
@@ -838,7 +838,7 @@ control "repository_steampipe_core_delete_branch_on_merge_enabled" {
     from
       github_search_repository
     where
-      query ='repo:turbot/steampipe repo:turbot/steampipe-plugin-sdk repo:turbot/steampipe-docs repo:turbot/steampipe-postgres-fdw is:public archived:false'
+      query ='${local.benchmark_turbot_core_search_query}'
     order by
       name_with_owner
   EOT
@@ -862,7 +862,7 @@ control "repository_steampipe_core_default_branch_protection_enabled" {
     from
       github_search_repository
     where
-      query ='repo:turbot/steampipe repo:turbot/steampipe-plugin-sdk repo:turbot/steampipe-docs repo:turbot/steampipe-postgres-fdw is:public archived:false'
+      query ='${local.benchmark_turbot_core_search_query}'
     order by
       name_with_owner
   EOT
@@ -885,7 +885,7 @@ control "repository_steampipe_core_wiki_disabled" {
     from
       github_search_repository
     where
-      query ='repo:turbot/steampipe repo:turbot/steampipe-plugin-sdk repo:turbot/steampipe-docs repo:turbot/steampipe-postgres-fdw is:public archived:false'
+      query ='${local.benchmark_turbot_core_search_query}'
     order by
       name_with_owner
   EOT
@@ -908,7 +908,7 @@ control "repository_steampipe_core_projects_disabled" {
     from
       github_search_repository
     where
-      query ='repo:turbot/steampipe repo:turbot/steampipe-plugin-sdk repo:turbot/steampipe-docs repo:turbot/steampipe-postgres-fdw is:public archived:false'
+      query ='${local.benchmark_turbot_core_search_query}'
     order by
       name_with_owner
   EOT
@@ -952,7 +952,7 @@ control "repository_steampipe_core_squash_merge_allowed" {
     from
       github_search_repository
     where
-      query ='repo:turbot/steampipe repo:turbot/steampipe-plugin-sdk repo:turbot/steampipe-docs repo:turbot/steampipe-postgres-fdw is:public archived:false'
+      query ='${local.benchmark_turbot_core_search_query}'
     order by
       name_with_owner
   EOT

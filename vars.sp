@@ -13,6 +13,8 @@ locals {
   benchmark_all_plugin_search_query    = "in:name steampipe-plugin- is:public archived:false org:turbot org:ellisvalentiner org:ernw org:francois2metz org:ip2location org:kaggrwal org:marekjalovec org:mr-destructive org:solacelabs org:theapsgroup org:tomba-io"
   benchmark_turbot_plugin_search_query = "in:name steampipe-plugin- is:public archived:false org:turbot"
 
+  benchmark_turbot_core_search_query = "repo:turbot/steampipe repo:turbot/steampipe-plugin-sdk repo:turbot/steampipe-docs repo:turbot/steampipe-postgres-fdw is:public archived:false"
+
   dashboard_issue_search_query        = "org:turbot is:open is:public archived:false"
   dashboard_pull_request_search_query = "org:turbot is:open is:public archived:false -author:app/dependabot"
 }

@@ -99,24 +99,6 @@ control "organization_profile_pic_set" {
   EOT
 }
 
-control "organization_profile_pic_set" {
-  title       = "Organization profile picture should be set"
-  description = "Setting a profile picture helps users recognize your brand."
-  tags        = local.github_organization_checks_common_tags
-  sql = <<-EOT
-    select
-      url as resource,
-      case
-        when avatar_url is not null then 'ok'
-        else 'alarm'
-      end as status,
-      coalesce(name, login) || ' profile picture URL is ' || case when(avatar_url <> '') then avatar_url else 'not set' end || '.' as reason,
-      login
-    from
-      github_my_organization;
-  EOT
-}
-
 control "organization_domain_verified" {
   title       = "Organization domain should be verified"
   description = "Verifying your domain helps to confirm the organization's identity and send emails to users with verified emails."

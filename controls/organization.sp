@@ -101,6 +101,7 @@ control "organization_profile_pic_set" {
   EOT
 }
 
+<<<<<<< HEAD
 control "organization_profile_pic_set" {
   title       = "Organization profile picture should be set"
   description = "Setting a profile picture helps users recognize your brand."

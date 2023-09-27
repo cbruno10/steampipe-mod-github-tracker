@@ -1,6 +1,6 @@
 dashboard "github_open_issue_pull_request_trends" {
 
-  title = "GitHub Open Issue and Pull Request Trends"
+  title = "Steampipe Open Issue and Pull Request Trends"
 
   tags = merge(local.github_common_tags, {
     type = "Dashboard"

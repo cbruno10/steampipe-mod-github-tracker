@@ -1,6 +1,6 @@
 dashboard "github_open_cli_issue_report" {
 
-  title = "GitHub Open CLI Issues"
+  title = "Steampipe Open Core Issues"
 
   tags = merge(local.github_issue_common_tags, {
     type = "Report"

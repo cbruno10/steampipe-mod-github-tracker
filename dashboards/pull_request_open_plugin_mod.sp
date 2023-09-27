@@ -1,6 +1,6 @@
 dashboard "github_open_plugin_mod_pull_request_report" {
 
-  title = "GitHub Open Plugin and Mod Pull Requests"
+  title = "Steampipe Open Plugin and Mod Pull Requests"
 
   tags = merge(local.github_pull_request_common_tags, {
     type = "Report"

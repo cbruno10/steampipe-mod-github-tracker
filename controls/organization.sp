@@ -8,11 +8,11 @@ benchmark "organization_checks" {
   title = "GitHub Organization Checks"
   children = [
     control.organization_description_set,
-    control.organization_domain_verified,
+    control.organization_domains_verified,
     control.organization_email_set,
     control.organization_homepage_set,
     control.organization_profile_pic_set,
-    control.organization_two_factor_authentication_required // This check is also available in github-insights mod
+    control.organization_two_factor_authentication_required
   ]
 
   tags = merge(local.github_organization_checks_common_tags, {
@@ -40,7 +40,9 @@ control "organization_two_factor_authentication_required" {
         end || '.' as reason,
       login
     from
-      github_my_organization;
+      github_my_organization
+    where
+      login in ${local.benchmark_all_organizations};
   EOT
 }
 
@@ -59,7 +61,9 @@ control "organization_email_set" {
       coalesce(name, login) || ' email is ' || case when (email is null) then 'not set' when (email = '') then 'not set' else email end || '.' as reason,
       login
     from
-      github_my_organization;
+      github_my_organization
+    where
+      login in ${local.benchmark_all_organizations};
   EOT
 }
 
@@ -77,7 +81,9 @@ control "organization_description_set" {
       coalesce(name, login) || ' description is ' || case when(description <> '') then description else 'not set' end || '.' as reason,
       login
     from
-      github_my_organization;
+      github_my_organization
+    where
+      login in ${local.benchmark_all_organizations};
   EOT
 }
 
@@ -95,7 +101,9 @@ control "organization_profile_pic_set" {
       coalesce(name, login) || ' profile picture URL is ' || case when(avatar_url <> '') then avatar_url else 'not set' end || '.' as reason,
       login
     from
-      github_my_organization;
+      github_my_organization
+    where
+      login in ${local.benchmark_all_organizations};
   EOT
 }
 
@@ -113,13 +121,15 @@ control "organization_profile_pic_set" {
       coalesce(name, login) || ' profile picture URL is ' || case when(avatar_url <> '') then avatar_url else 'not set' end || '.' as reason,
       login
     from
-      github_my_organization;
+      github_my_organization
+    where
+      login in ${local.benchmark_all_organizations};
   EOT
 }
 
-control "organization_domain_verified" {
-  title       = "Organization domain should be verified"
-  description = "Verifying your domain helps to confirm the organization's identity and send emails to users with verified emails."
+control "organization_domains_verified" {
+  title       = "Organization domains should be verified"
+  description = "Verifying your domains helps to confirm the organization's identity and send emails to users with verified emails."
   tags        = local.github_organization_checks_common_tags
   sql = <<-EOT
     select
@@ -128,10 +138,12 @@ control "organization_domain_verified" {
         when is_verified then 'ok'
         else 'alarm'
       end as status,
-      coalesce(name, login) || ' domain is ' || case when (is_verified)::bool then 'verified' else 'not verified' end || '.' as reason,
+      coalesce(name, login) || ' domains are ' || case when (is_verified)::bool then 'verified' else 'not verified' end || '.' as reason,
       login
     from
-      github_my_organization;
+      github_my_organization
+    where
+      login in ${local.benchmark_all_organizations};
   EOT
 }
 
@@ -150,6 +162,8 @@ control "organization_homepage_set" {
       coalesce(name, login) || ' homepage is ' || case when (website_url is null) then 'not set' when (website_url = '') then 'not set' else website_url end || '.' as reason,
       login
     from
-      github_my_organization;
+      github_my_organization
+    where
+      login in ${local.benchmark_all_organizations};
   EOT
 }

@@ -4,38 +4,6 @@ locals {
   })
 }
 
-# TODO: Remove this variable when not required
-variable "github_external_repository_names" {
-  type        = list(string)
-  description = "A list of community repositories to run checks for."
-
-  default = [
-    "ellisvalentiner/steampipe-plugin-confluence",
-    "ellisvalentiner/steampipe-plugin-weatherkit",
-    "ernw/steampipe-plugin-openstack",
-    "francois2metz/steampipe-plugin-airtable",
-    "francois2metz/steampipe-plugin-baleen",
-    "francois2metz/steampipe-plugin-freshping",
-    "francois2metz/steampipe-plugin-gandi",
-    "francois2metz/steampipe-plugin-gitguardian",
-    "francois2metz/steampipe-plugin-ovh",
-    "francois2metz/steampipe-plugin-scalingo",
-    "ip2location/steampipe-plugin-ip2locationio",
-    "kaggrwal/steampipe-plugin-bitfinex",
-    "marekjalovec/steampipe-plugin-make",
-    "mr-destructive/steampipe-plugin-cohereai",
-    "solacelabs/steampipe-plugin-solace",
-    "theapsgroup/steampipe-plugin-clickup",
-    "theapsgroup/steampipe-plugin-freshservice",
-    "theapsgroup/steampipe-plugin-gitlab",
-    "theapsgroup/steampipe-plugin-keycloak",
-    "theapsgroup/steampipe-plugin-vault",
-    "tomba-io/steampipe-plugin-tomba",
-  ]
-}
-
-# TODO: Update common queries to search for mod and plugin repos, or separate
-# them out
 benchmark "repository_checks" {
   title = "GitHub Repository Checks"
   children = [

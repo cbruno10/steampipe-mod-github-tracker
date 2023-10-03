@@ -1,5 +1,5 @@
 benchmark "repository_steampipe_plugin_checks" {
-  title = "GitHub Plugin Repository Checks"
+  title = "Steampipe Plugin Repository Checks"
   children = [
     control.repository_steampipe_plugin_has_mandatory_topics,
     control.repository_steampipe_plugin_default_branch_protection_enabled,

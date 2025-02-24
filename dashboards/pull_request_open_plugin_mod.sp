@@ -66,7 +66,7 @@ query "github_pull_request_aws_plugin_external_count" {
       github_search_pull_request
     where
       query = '${local.dashboard_pull_request_search_query}'
-      and repository_full_name = 'turbot/steampipe-plugin-aws'
+      and (repository_full_name = 'turbot/steampipe-plugin-aws' or repository_full_name = 'turbot/tailpipe-plugin-aws')
       and author ->> 'login' not in (
         select
           m.login as member_login
@@ -94,7 +94,7 @@ query "github_pull_request_aws_compliance_mod_external_count" {
       github_search_pull_request
     where
       query = '${local.dashboard_pull_request_search_query}'
-      and repository_full_name = 'turbot/steampipe-mod-aws-compliance'
+      and (repository_full_name = 'turbot/steampipe-mod-aws-compliance' or repository_full_name = 'turbot/tailpipe-mod-aws-compliance')
       and author ->> 'login' not in (
         select
           m.login as member_login
@@ -122,8 +122,9 @@ query "github_pull_request_open_plugin_mod_total_days_count" {
       github_search_pull_request
     where
       query = '${local.dashboard_pull_request_search_query}'
-      and repository_full_name ~ 'turbot/steampipe-(plugin|mod)'
+      and (repository_full_name ~ 'turbot/steampipe-(plugin|mod)' or repository_full_name ~ 'turbot/tailpipe-(plugin|mod)')
       and repository_full_name <> 'turbot/steampipe-plugin-sdk'
+      and repository_full_name <> 'turbot/tailpipe-plugin-sdk'
       and author ->> 'login' not in (
         select
           m.login as member_login
@@ -151,8 +152,9 @@ query "github_pull_request_plugin_external_count" {
       github_search_pull_request
     where
       query = '${local.dashboard_pull_request_search_query}'
-      and repository_full_name ~ 'turbot/steampipe-plugin'
+      and (repository_full_name ~ 'turbot/steampipe-plugin' or repository_full_name ~ 'turbot/tailpipe-plugin')
       and repository_full_name <> 'turbot/steampipe-plugin-sdk'
+      and repository_full_name <> 'turbot/tailpipe-plugin-sdk'
       and author ->> 'login' not in (
         select
           m.login as member_login
@@ -180,7 +182,7 @@ query "github_pull_request_mod_external_count" {
       github_search_pull_request
     where
       query = '${local.dashboard_pull_request_search_query}'
-      and repository_full_name ~ 'turbot/steampipe-mod'
+      and (repository_full_name ~ 'turbot/steampipe-mod' or repository_full_name ~ 'turbot/tailpipe-mod')
       and author ->> 'login' not in (
         select
           m.login as member_login
@@ -205,8 +207,9 @@ query "github_pull_request_open_plugin_mod_table" {
       github_search_pull_request
     where
       query = '${local.dashboard_pull_request_search_query}'
-      and repository_full_name ~ 'turbot/steampipe-(plugin|mod)'
+      and (repository_full_name ~ 'turbot/steampipe-(plugin|mod)' or repository_full_name ~ 'turbot/tailpipe-(plugin|mod)')
       and repository_full_name <> 'turbot/steampipe-plugin-sdk'
+      and repository_full_name <> 'turbot/tailpipe-plugin-sdk'
       and author ->> 'login' not in (
         select
           m.login as member_login
@@ -219,4 +222,3 @@ query "github_pull_request_open_plugin_mod_table" {
       "Age in Days" desc;
   EOQ
 }
-

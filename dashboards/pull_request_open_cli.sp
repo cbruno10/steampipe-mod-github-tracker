@@ -65,7 +65,7 @@ query "github_pull_request_open_cli_total_days_count" {
       github_search_pull_request
     where
       query = '${local.dashboard_pull_request_search_query}'
-      and (repository_full_name ~ 'turbot/steampipe-(docs|fdw|plugin-sdk)' or repository_full_name = 'turbot/steampipe')
+      and (repository_full_name ~ 'turbot/steampipe-(docs|fdw|plugin-sdk)' or repository_full_name = 'turbot/steampipe' or repository_full_name ~ 'turbot/tailpipe-(docs|fdw|plugin-sdk)' or repository_full_name = 'turbot/tailpipe')
       and author ->> 'login' not in (
         select
           m.login as member_login
@@ -93,7 +93,7 @@ query "github_pull_request_cli_external_count" {
       github_search_pull_request
     where
       query = '${local.dashboard_pull_request_search_query}'
-      and repository_full_name = 'turbot/steampipe'
+      and (repository_full_name = 'turbot/steampipe' or repository_full_name = 'turbot/tailpipe')
       and author ->> 'login' not in (
         select
           m.login as member_login
@@ -121,7 +121,7 @@ query "github_pull_request_sdk_external_count" {
       github_search_pull_request
     where
       query = '${local.dashboard_pull_request_search_query}'
-      and repository_full_name = 'turbot/steampipe-plugin-sdk'
+      and (repository_full_name = 'turbot/steampipe-plugin-sdk' or repository_full_name = 'turbot/tailpipe-plugin-sdk')
       and author ->> 'login' not in (
         select
           m.login as member_login
@@ -149,7 +149,7 @@ query "github_pull_request_fdw_external_count" {
       github_search_pull_request
     where
       query = '${local.dashboard_pull_request_search_query}'
-      and repository_full_name = 'turbot/steampipe-fdw'
+      and (repository_full_name = 'turbot/steampipe-fdw' or repository_full_name = 'turbot/tailpipe-fdw')
       and author ->> 'login' not in (
         select
           m.login as member_login
@@ -177,7 +177,7 @@ query "github_pull_request_docs_external_count" {
       github_search_pull_request
     where
       query = '${local.dashboard_pull_request_search_query}'
-      and repository_full_name = 'turbot/steampipe-docs'
+      and (repository_full_name = 'turbot/steampipe-docs' or repository_full_name = 'turbot/tailpipe-docs')
       and author ->> 'login' not in (
         select
           m.login as member_login
@@ -202,7 +202,7 @@ query "github_pull_request_cli_table" {
       github_search_pull_request
     where
       query = '${local.dashboard_pull_request_search_query}'
-      and (repository_full_name ~ 'turbot/steampipe-(docs|fdw|plugin-sdk)' or repository_full_name = 'turbot/steampipe')
+      and (repository_full_name ~ 'turbot/steampipe-(docs|fdw|plugin-sdk)' or repository_full_name = 'turbot/steampipe' or repository_full_name ~ 'turbot/tailpipe-(docs|fdw|plugin-sdk)' or repository_full_name = 'turbot/tailpipe')
       and author ->> 'login' not in (
         select
           m.login as member_login
